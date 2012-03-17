@@ -226,10 +226,19 @@ AC_DEFUN([AX_HAVE_QT],
         QT_LUPDATE="$ax_qt_bin_dir/lupdate"
       else
       # Last possibility is that they are in $PATH
-        QT_UIC="`which uic`"
-        QT_MOC="`which moc`"
-        QT_LRELEASE="`which lrelease`"
-        QT_LUPDATE="`which lupdate`"
+        if test x"`which moc`" != x; then
+          # Check if it's in the PATH
+          QT_UIC="`which uic`"
+          QT_MOC="`which moc`"
+          QT_LRELEASE="`which lrelease`"
+          QT_LUPDATE="`which lupdate`"
+        else
+          # Check if it's been packaged with a -qt4 suffix
+          QT_MOC="`which moc-qt4`"
+          QT_UIC="`which uic-qt4`"
+          QT_LRELEASE="`which lrelease-qt4`"
+          QT_LUPDATE="`which lupdate-qt4`"
+        fi
       fi
     fi
     # All variables are defined, report the result
