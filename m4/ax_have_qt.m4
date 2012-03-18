@@ -441,15 +441,22 @@ AC_DEFUN([AX_HAVE_QT_FIND_INCLUDE], [
   # The following header file is expected to define QT_VERSION.
   qt_direct_test_header=qglobal.h
   # Look for the header file in a standard set of common directories.
-  for ax_dir in \
+  for ax_include_dir_root in \
+    "${QTDIR}/include" \
     /usr/include \
-    `ls -dr ${QTDIR}/include 2>/dev/null` \
-    `ls -dr /usr/include/qt* 2>/dev/null` \
-    `ls -dr /usr/lib/qt*/include 2>/dev/null` \
-    `ls -dr /usr/local/qt*/include 2>/dev/null` \
-    `ls -dr /opt/qt*/include 2>/dev/null` \
-    `ls -dr /Developer/qt*/include 2>/dev/null`;
+    /usr/lib \
+    /usr/lib64 \
+    /usr/local \
+    /opt/ \
+    /Developer;
   do
+    for ax_dir in \
+      "$ax_include_dir_root" \
+      `ls -dr $ax_include_dir_root/qt*/include 2>/dev/null` \
+      `ls -dr $ax_include_dir_root/Qt*/include 2>/dev/null` \
+      `ls -dr $ax_include_dir_root/qt* 2>/dev/null` \
+      `ls -dr $ax_include_dir_root/Qt* 2>/dev/null`;
+    do
     if test -r "$ax_dir/$qt_direct_test_header"; then
       ax_dirs="$ax_dirs $ax_dir"
     fi
