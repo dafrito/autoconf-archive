@@ -406,7 +406,7 @@ AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
         echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
         # Look for some Qt lib in a standard set of common directories.
         ax_dir_list="
-          `echo $ax_qt_includes | sed ss/includess`
+          `echo $ax_qt_includes | sed s@/include@@`
           /lib
     /usr/lib64
           /usr/lib
