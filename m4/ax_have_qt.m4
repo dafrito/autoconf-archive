@@ -380,6 +380,7 @@ dnl This macro is not intended to be called by end-users.
 dnl
 dnl This macro uses the following variables:
 dnl   ax_qt_include_dir - the path believed to contain Qt's header files
+dnl   ax_qt_lib - a user-specified library name that will be used for linking
 dnl
 dnl This macro sets the following variables:
 dnl   ax_qt_LIBS - the set of libraries required to link Qt
