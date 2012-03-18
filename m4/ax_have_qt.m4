@@ -460,10 +460,9 @@ AC_DEFUN([AX_HAVE_QT_CHECK_LIB], [
     # Success.
     # We can link with no special library directory.
     ax_qt_lib_dir=
-    ax_qt_LIBS="$LIBS"
     $2
   ], [
-    # Leave ax_qt_lib_dir defined
+    ax_qt_LIBS=
     $3
   ])
   LIBS="$ax_save_LIBS"
