@@ -328,9 +328,9 @@ AC_DEFUN([AX_PATH_QT_DIRECT],
       ax_qt_lib_dir="$with_Qt_lib_dir"
     else
       if (test -d $ax_qt_dir/lib64); then
-	ax_qt_lib_dir="$ax_qt_dir/lib64"
+        ax_qt_lib_dir="$ax_qt_dir/lib64"
       else
-	ax_qt_lib_dir="$ax_qt_dir/lib"
+        ax_qt_lib_dir="$ax_qt_dir/lib"
       fi
     fi
     # Only look for lib if the user did not supply it already
