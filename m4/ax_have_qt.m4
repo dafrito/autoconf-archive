@@ -327,103 +327,7 @@ AC_DEFUN([AX_PATH_QT_DIRECT],
       fi
       ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
     else
-      # Normally, when there is no traditional Trolltech installation,
-      # the library is installed in a place where the linker finds it
-      # automatically.
-      # If the user did not define the library name, try with qt
-      if test x"$ax_qt_lib" = xNO; then
-        ax_qt_lib=qt
-      fi
-      qt_direct_test_header=qapplication.h
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QApplication app(argc,argv);
-      "
-      # See if we find the library without any special options.
-      # Don't add top $LIBS permanently yet
-      ax_save_LIBS="$LIBS"
-      LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-      ax_qt_LIBS="$LIBS"
-      ax_save_CXXFLAGS="$CXXFLAGS"
-      CXXFLAGS="-I$ax_qt_include_dir"
-      AC_TRY_LINK([#include <$qt_direct_test_header>],
-        $qt_direct_test_main,
-      [
-        # Success.
-        # We can link with no special library directory.
-        ax_qt_lib_dir=
-      ], [
-        # That did not work. Try the multi-threaded version
-        echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-        ax_qt_lib=qt-mt
-        LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-        AC_TRY_LINK([#include <$qt_direct_test_header>],
-          $qt_direct_test_main,
-        [
-          # Success.
-          # We can link with no special library directory.
-          ax_qt_lib_dir=
-        ], [
-          # That did not work. Try the OpenGL version
-          echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-          ax_qt_lib=qt-gl
-          LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-          AC_TRY_LINK([#include <$qt_direct_test_header>],
-            $qt_direct_test_main,
-          [
-            # Success.
-            # We can link with no special library directory.
-            ax_qt_lib_dir=
-          ], [
-            # That did not work. Maybe a library version I don't know about?
-            echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-            # Look for some Qt lib in a standard set of common directories.
-            ax_dir_list="
-              `echo $ax_qt_includes | sed ss/includess`
-              /lib
-	      /usr/lib64
-              /usr/lib
-	      /usr/local/lib64
-              /usr/local/lib
-	      /opt/lib64
-              /opt/lib
-              `ls -dr /usr/lib64/qt* 2>/dev/null`
-              `ls -dr /usr/lib64/qt*/lib64 2>/dev/null`
-              `ls -dr /usr/lib/qt* 2>/dev/null`
-              `ls -dr /usr/local/qt* 2>/dev/null`
-              `ls -dr /opt/qt* 2>/dev/null`
-            "
-            for ax_dir in $ax_dir_list; do
-              if ls $ax_dir/libqt* >/dev/null 2>/dev/null; then
-                # Gamble that it's the first one...
-                ax_qt_lib="`ls $ax_dir/libqt* | sed -n 1p |
-                            sed s@$ax_dir/lib@@ | sed s/[[.]].*//`"
-                ax_qt_lib_dir="$ax_dir"
-                break
-              fi
-            done
-            # Try with that one
-            LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-            AC_TRY_LINK([#include <$qt_direct_test_header>],
-              $qt_direct_test_main,
-            [
-              # Success.
-              # We can link with no special library directory.
-              ax_qt_lib_dir=
-            ], [
-             : # Leave ax_qt_lib_dir defined
-            ])
-          ])
-        ])
-      ])
-      if test x"$ax_qt_lib_dir" != x; then
-        ax_qt_LIBS="-L$ax_qt_lib_dir $LIBS"
-      else
-        ax_qt_LIBS="$LIBS"
-      fi
-      LIBS="$ax_save_LIBS"
-      CXXFLAGS="$ax_save_CXXFLAGS"
+      AX_HAVE_QT_FIND_LIB
     fi dnl $with_Qt_lib_dir was not given
   fi dnl Done setting up for non-traditional Trolltech installation
 ])
@@ -469,6 +373,118 @@ AC_DEFUN([AX_HAVE_QT_FIND_INCLUDE], [
     done
   done
 ])dnl AX_HAVE_QT_FIND_INCLUDE
+
+dnl Find the library linker path for Qt.
+dnl
+dnl This macro is not intended to be called by end-users.
+dnl
+dnl This macro uses the following variables:
+dnl   ax_qt_include_dir - the path believed to contain Qt's header files
+dnl
+dnl This macro sets the following variables:
+dnl   ax_qt_LIBS - the set of libraries required to link Qt
+dnl   ax_qt_lib_dir - the path believed to contain Qt's libraries. This may be
+dnl     empty if there's no need for specific path.
+dnl
+AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
+  # Normally, when there is no traditional Trolltech installation,
+  # the library is installed in a place where the linker finds it
+  # automatically.
+  # If the user did not define the library name, try with qt
+  if test x"$ax_qt_lib" = xNO; then
+    ax_qt_lib=qt
+  fi
+  qt_direct_test_header=qapplication.h
+  qt_direct_test_main="
+    int argc;
+    char ** argv;
+    QApplication app(argc,argv);
+  "
+  # See if we find the library without any special options.
+  # Don't add top $LIBS permanently yet
+  ax_save_LIBS="$LIBS"
+  LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+  ax_qt_LIBS="$LIBS"
+  ax_save_CXXFLAGS="$CXXFLAGS"
+  CXXFLAGS="-I$ax_qt_include_dir"
+  AC_TRY_LINK([#include <$qt_direct_test_header>],
+    $qt_direct_test_main,
+  [
+    # Success.
+    # We can link with no special library directory.
+    ax_qt_lib_dir=
+  ], [
+    # That did not work. Try the multi-threaded version
+    echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
+    ax_qt_lib=qt-mt
+    LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+    AC_TRY_LINK([#include <$qt_direct_test_header>],
+      $qt_direct_test_main,
+    [
+      # Success.
+      # We can link with no special library directory.
+      ax_qt_lib_dir=
+    ], [
+      # That did not work. Try the OpenGL version
+      echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
+      ax_qt_lib=qt-gl
+      LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      AC_TRY_LINK([#include <$qt_direct_test_header>],
+        $qt_direct_test_main,
+      [
+        # Success.
+        # We can link with no special library directory.
+        ax_qt_lib_dir=
+      ], [
+        # That did not work. Maybe a library version I don't know about?
+        echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
+        # Look for some Qt lib in a standard set of common directories.
+        ax_dir_list="
+          `echo $ax_qt_includes | sed ss/includess`
+          /lib
+    /usr/lib64
+          /usr/lib
+    /usr/local/lib64
+          /usr/local/lib
+    /opt/lib64
+          /opt/lib
+          `ls -dr /usr/lib64/qt* 2>/dev/null`
+          `ls -dr /usr/lib64/qt*/lib64 2>/dev/null`
+          `ls -dr /usr/lib/qt* 2>/dev/null`
+          `ls -dr /usr/local/qt* 2>/dev/null`
+          `ls -dr /opt/qt* 2>/dev/null`
+        "
+        for ax_dir in $ax_dir_list; do
+          if ls $ax_dir/libqt* >/dev/null 2>/dev/null; then
+            # Gamble that it's the first one...
+            ax_qt_lib="`ls $ax_dir/libqt* | sed -n 1p |
+                        sed s@$ax_dir/lib@@ | sed s/[[.]].*//`"
+            ax_qt_lib_dir="$ax_dir"
+            break
+          fi
+        done
+        # Try with that one
+        LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+        AC_TRY_LINK([#include <$qt_direct_test_header>],
+          $qt_direct_test_main,
+        [
+          # Success.
+          # We can link with no special library directory.
+          ax_qt_lib_dir=
+        ], [
+         : # Leave ax_qt_lib_dir defined
+        ])
+      ])
+    ])
+  ])
+  if test x"$ax_qt_lib_dir" != x; then
+    ax_qt_LIBS="-L$ax_qt_lib_dir $LIBS"
+  else
+    ax_qt_LIBS="$LIBS"
+  fi
+  LIBS="$ax_save_LIBS"
+  CXXFLAGS="$ax_save_CXXFLAGS"
+])dnl AX_HAVE_QT_FIND_LIB
 
 AC_DEFUN([AX_HAVE_QT_VERIFY_TOOLCHAIN], [
   #### Being paranoid:
