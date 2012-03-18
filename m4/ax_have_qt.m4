@@ -394,48 +394,14 @@ AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
   if test x"$ax_qt_lib" = xNO; then
     ax_qt_lib=qt
   fi
-  qt_direct_test_header=qapplication.h
-  qt_direct_test_main="
-    int argc;
-    char ** argv;
-    QApplication app(argc,argv);
-  "
   # See if we find the library without any special options.
-  # Don't add top $LIBS permanently yet
-  ax_save_LIBS="$LIBS"
-  LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-  ax_qt_LIBS="$LIBS"
-  ax_save_CXXFLAGS="$CXXFLAGS"
-  CXXFLAGS="-I$ax_qt_include_dir"
-  AC_TRY_LINK([#include <$qt_direct_test_header>],
-    $qt_direct_test_main,
-  [
-    # Success.
-    # We can link with no special library directory.
-    ax_qt_lib_dir=
-  ], [
+  AX_HAVE_QT_CHECK_LIB($ax_qt_lib,,[
     # That did not work. Try the multi-threaded version
     echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-    ax_qt_lib=qt-mt
-    LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-    AC_TRY_LINK([#include <$qt_direct_test_header>],
-      $qt_direct_test_main,
-    [
-      # Success.
-      # We can link with no special library directory.
-      ax_qt_lib_dir=
-    ], [
+    AX_HAVE_QT_CHECK_LIB(qt-mt,,[
       # That did not work. Try the OpenGL version
       echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-      ax_qt_lib=qt-gl
-      LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-      AC_TRY_LINK([#include <$qt_direct_test_header>],
-        $qt_direct_test_main,
-      [
-        # Success.
-        # We can link with no special library directory.
-        ax_qt_lib_dir=
-      ], [
+      AX_HAVE_QT_CHECK_LIB(qt-gl,,[
         # That did not work. Maybe a library version I don't know about?
         echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
         # Look for some Qt lib in a standard set of common directories.
@@ -463,17 +429,6 @@ AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
             break
           fi
         done
-        # Try with that one
-        LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-        AC_TRY_LINK([#include <$qt_direct_test_header>],
-          $qt_direct_test_main,
-        [
-          # Success.
-          # We can link with no special library directory.
-          ax_qt_lib_dir=
-        ], [
-         : # Leave ax_qt_lib_dir defined
-        ])
       ])
     ])
   ])
@@ -482,9 +437,37 @@ AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
   else
     ax_qt_LIBS="$LIBS"
   fi
+])dnl AX_HAVE_QT_FIND_LIB
+
+dnl Check for the specified Qt library.
+AC_DEFUN([AX_HAVE_QT_CHECK_LIB], [
+  ax_save_LIBS="$LIBS"
+  ax_save_CXXFLAGS="$CXXFLAGS"
+  ax_qt_lib=$1
+  CXXFLAGS="-I$ax_qt_include_dir"
+  LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+  ax_qt_LIBS="$LIBS"
+  qt_direct_test_header=qapplication.h
+  qt_direct_test_main="
+    int argc;
+    char ** argv;
+    QApplication app(argc,argv);
+  "
+  AC_TRY_LINK([#include <$qt_direct_test_header>],
+    $qt_direct_test_main,
+  [
+    # Success.
+    # We can link with no special library directory.
+    ax_qt_lib_dir=
+    ax_qt_LIBS="$LIBS"
+    $2
+  ], [
+    # Leave ax_qt_lib_dir defined
+    $3
+  ])
   LIBS="$ax_save_LIBS"
   CXXFLAGS="$ax_save_CXXFLAGS"
-])dnl AX_HAVE_QT_FIND_LIB
+])
 
 AC_DEFUN([AX_HAVE_QT_VERIFY_TOOLCHAIN], [
   #### Being paranoid:
