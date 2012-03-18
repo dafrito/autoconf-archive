@@ -457,6 +457,7 @@ AC_DEFUN([AX_HAVE_QT_FIND_INCLUDE], [
   # Now look for the newest in this list
   ax_prev_ver=0
   for ax_dir in $ax_dirs; do
+    # Check if this directory contains a newer library than our previous candidate.
     ax_this_ver=`egrep -w '#define QT_VERSION' $ax_dir/$qt_direct_test_header | sed s/'#define QT_VERSION'//`
     if expr $ax_this_ver '>' $ax_prev_ver > /dev/null; then
       ax_qt_include_dir=$ax_dir
