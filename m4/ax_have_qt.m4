@@ -452,7 +452,7 @@ AC_DEFUN([AX_HAVE_QT_CHECK_LIB], [
   qt_direct_test_main="
     int argc;
     char ** argv;
-    QApplication app(argc,argv);
+    QApplication app (argc,argv);
   "
   AC_TRY_LINK([#include <$qt_direct_test_header>],
     $qt_direct_test_main,
