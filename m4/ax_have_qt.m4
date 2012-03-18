@@ -287,32 +287,7 @@ AC_DEFUN([AX_PATH_QT_DIRECT],
   if test x"$with_Qt_include_dir" != x; then
     ax_qt_include_dir="$with_Qt_include_dir"
   else
-    # The following header file is expected to define QT_VERSION.
-    qt_direct_test_header=qglobal.h
-    # Look for the header file in a standard set of common directories.
-    ax_include_path_list="
-      /usr/include
-      `ls -dr ${QTDIR}/include 2>/dev/null`
-      `ls -dr /usr/include/qt* 2>/dev/null`
-      `ls -dr /usr/lib/qt*/include 2>/dev/null`
-      `ls -dr /usr/local/qt*/include 2>/dev/null`
-      `ls -dr /opt/qt*/include 2>/dev/null`
-      `ls -dr /Developer/qt*/include 2>/dev/null`
-    "
-    for ax_dir in $ax_include_path_list; do
-      if test -r "$ax_dir/$qt_direct_test_header"; then
-        ax_dirs="$ax_dirs $ax_dir"
-      fi
-    done
-    # Now look for the newest in this list
-    ax_prev_ver=0
-    for ax_dir in $ax_dirs; do
-      ax_this_ver=`egrep -w '#define QT_VERSION' $ax_dir/$qt_direct_test_header | sed s/'#define QT_VERSION'//`
-      if expr $ax_this_ver '>' $ax_prev_ver > /dev/null; then
-        ax_qt_include_dir=$ax_dir
-        ax_prev_ver=$ax_this_ver
-      fi
-    done
+    AX_HAVE_QT_FIND_INCLUDE
   fi dnl Found header files.
 
   # Are these headers located in a traditional Trolltech installation?
@@ -452,6 +427,44 @@ AC_DEFUN([AX_PATH_QT_DIRECT],
     fi dnl $with_Qt_lib_dir was not given
   fi dnl Done setting up for non-traditional Trolltech installation
 ])
+
+dnl Find the include directory for Qt.
+dnl
+dnl This macro is not intended to be called by end-users.
+dnl
+dnl This macro doesn't use any external variables.
+dnl
+dnl This macro sets the following variables:
+dnl   ax_qt_include_dir - the path believed to contain Qt's header files
+dnl
+AC_DEFUN([AX_HAVE_QT_FIND_INCLUDE], [
+  # The following header file is expected to define QT_VERSION.
+  qt_direct_test_header=qglobal.h
+  # Look for the header file in a standard set of common directories.
+  ax_include_path_list="
+    /usr/include
+    `ls -dr ${QTDIR}/include 2>/dev/null`
+    `ls -dr /usr/include/qt* 2>/dev/null`
+    `ls -dr /usr/lib/qt*/include 2>/dev/null`
+    `ls -dr /usr/local/qt*/include 2>/dev/null`
+    `ls -dr /opt/qt*/include 2>/dev/null`
+    `ls -dr /Developer/qt*/include 2>/dev/null`
+  "
+  for ax_dir in $ax_include_path_list; do
+    if test -r "$ax_dir/$qt_direct_test_header"; then
+      ax_dirs="$ax_dirs $ax_dir"
+    fi
+  done
+  # Now look for the newest in this list
+  ax_prev_ver=0
+  for ax_dir in $ax_dirs; do
+    ax_this_ver=`egrep -w '#define QT_VERSION' $ax_dir/$qt_direct_test_header | sed s/'#define QT_VERSION'//`
+    if expr $ax_this_ver '>' $ax_prev_ver > /dev/null; then
+      ax_qt_include_dir=$ax_dir
+      ax_prev_ver=$ax_this_ver
+    fi
+  done
+])dnl AX_HAVE_QT_FIND_INCLUDE
 
 AC_DEFUN([AX_HAVE_QT_VERIFY_TOOLCHAIN], [
   #### Being paranoid:
