@@ -271,7 +271,7 @@ AC_DEFUN([AX_HAVE_QT],
 
   # Ensure our Qt configuration actually works
   if test x"$have_qt" = xyes; then
-    AX_HAVE_QT_VERIFY_TOOLCHAIN
+    _AX_HAVE_QT_VERIFY_TOOLCHAIN
   fi
 ])
 
@@ -287,7 +287,7 @@ AC_DEFUN([AX_PATH_QT_DIRECT],
   if test x"$with_Qt_include_dir" != x; then
     ax_qt_include_dir="$with_Qt_include_dir"
   else
-    AX_HAVE_QT_FIND_INCLUDE
+    _AX_HAVE_QT_FIND_INCLUDE
   fi dnl Found header files.
 
   # Are these headers located in a traditional Trolltech installation?
@@ -327,7 +327,7 @@ AC_DEFUN([AX_PATH_QT_DIRECT],
       fi
       ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
     else
-      AX_HAVE_QT_FIND_LIB
+      _AX_HAVE_QT_FIND_LIB
     fi dnl $with_Qt_lib_dir was not given
   fi dnl Done setting up for non-traditional Trolltech installation
 ])
@@ -341,7 +341,7 @@ dnl
 dnl This macro sets the following variables:
 dnl   ax_qt_include_dir - the path believed to contain Qt's header files
 dnl
-AC_DEFUN([AX_HAVE_QT_FIND_INCLUDE], [
+AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
   # The following header file is expected to define QT_VERSION.
   qt_direct_test_header=qglobal.h
   # Look for the header file in a standard set of common directories.
@@ -372,7 +372,7 @@ AC_DEFUN([AX_HAVE_QT_FIND_INCLUDE], [
       fi
     done
   done
-])dnl AX_HAVE_QT_FIND_INCLUDE
+])dnl _AX_HAVE_QT_FIND_INCLUDE
 
 dnl Find the library linker path for Qt.
 dnl
@@ -387,7 +387,7 @@ dnl   ax_qt_LIBS - the set of libraries required to link Qt
 dnl   ax_qt_lib_dir - the path believed to contain Qt's libraries. This may be
 dnl     empty if there's no need for specific path.
 dnl
-AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
+AC_DEFUN([_AX_HAVE_QT_FIND_LIB], [
   # Normally, when there is no traditional Trolltech installation,
   # the library is installed in a place where the linker finds it
   # automatically.
@@ -396,13 +396,13 @@ AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
     ax_qt_lib=qt
   fi
   # See if we find the library without any special options.
-  AX_HAVE_QT_CHECK_LIB($ax_qt_lib,,[
+  _AX_HAVE_QT_CHECK_LIB($ax_qt_lib,,[
     # That did not work. Try the multi-threaded version
     echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-    AX_HAVE_QT_CHECK_LIB(qt-mt,,[
+    _AX_HAVE_QT_CHECK_LIB(qt-mt,,[
       # That did not work. Try the OpenGL version
       echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-      AX_HAVE_QT_CHECK_LIB(qt-gl,,[
+      _AX_HAVE_QT_CHECK_LIB(qt-gl,,[
         # That did not work. Maybe a library version I don't know about?
         echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
         # Look for some Qt lib in a standard set of common directories.
@@ -438,10 +438,10 @@ AC_DEFUN([AX_HAVE_QT_FIND_LIB], [
   else
     ax_qt_LIBS="$LIBS"
   fi
-])dnl AX_HAVE_QT_FIND_LIB
+])dnl _AX_HAVE_QT_FIND_LIB
 
 dnl Check for the specified Qt library.
-AC_DEFUN([AX_HAVE_QT_CHECK_LIB], [
+AC_DEFUN([_AX_HAVE_QT_CHECK_LIB], [
   ax_save_LIBS="$LIBS"
   ax_save_CXXFLAGS="$CXXFLAGS"
   ax_qt_lib=$1
@@ -469,7 +469,7 @@ AC_DEFUN([AX_HAVE_QT_CHECK_LIB], [
   CXXFLAGS="$ax_save_CXXFLAGS"
 ])
 
-AC_DEFUN([AX_HAVE_QT_VERIFY_TOOLCHAIN], [
+AC_DEFUN([_AX_HAVE_QT_VERIFY_TOOLCHAIN], [
   #### Being paranoid:
   if test x"$have_qt" = xyes; then
     AC_MSG_CHECKING(correct functioning of Qt installation)
