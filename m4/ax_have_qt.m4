@@ -90,7 +90,6 @@
 
 #serial 10
 
-dnl Calls AX_PATH_QT_DIRECT (contained in this file) as a subroutine.
 AU_ALIAS([BNV_HAVE_QT], [AX_HAVE_QT])
 AC_DEFUN([AX_HAVE_QT],
 [
@@ -174,7 +173,57 @@ AC_DEFUN([AX_HAVE_QT],
         if test x"$ax_qt_lib" = x; then
           ax_qt_lib=NO
         fi
-        AX_PATH_QT_DIRECT
+        ## Binary utilities ##
+        if test x"$with_Qt_bin_dir" != x; then
+          ax_qt_bin_dir=$with_Qt_bin_dir
+        fi
+        ## Look for header files ##
+        if test x"$with_Qt_include_dir" != x; then
+          ax_qt_include_dir="$with_Qt_include_dir"
+        else
+          _AX_HAVE_QT_FIND_INCLUDE
+        fi dnl Found header files.
+
+        # Are these headers located in a traditional Trolltech installation?
+        # That would be $ax_qt_include_dir stripped from its last element:
+        ax_possible_qt_dir=`dirname $ax_qt_include_dir`
+        if (test -x $ax_possible_qt_dir/bin/moc) &&
+           ((ls $ax_possible_qt_dir/lib/libqt* > /dev/null 2>/dev/null) ||
+            (ls $ax_possible_qt_dir/lib64/libqt* > /dev/null 2>/dev/null)); then
+          # Then the rest is a piece of cake
+          ax_qt_dir=$ax_possible_qt_dir
+          ax_qt_bin_dir="$ax_qt_dir/bin"
+          if test x"$with_Qt_lib_dir" != x; then
+            ax_qt_lib_dir="$with_Qt_lib_dir"
+          else
+            if (test -d $ax_qt_dir/lib64); then
+              ax_qt_lib_dir="$ax_qt_dir/lib64"
+            else
+              ax_qt_lib_dir="$ax_qt_dir/lib"
+            fi
+          fi
+          # Only look for lib if the user did not supply it already
+          if test x"$ax_qt_lib" = xNO; then
+            ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
+                         sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
+          fi
+          ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+        else
+          # There is no valid definition for $QTDIR as Trolltech likes to see it
+          ax_qt_dir=
+          ## Look for Qt library ##
+          if test x"$with_Qt_lib_dir" != x; then
+            ax_qt_lib_dir="$with_Qt_lib_dir"
+            # Only look for lib if the user did not supply it already
+            if test x"$ax_qt_lib" = xNO; then
+              ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
+                           sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
+            fi
+            ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+          else
+            _AX_HAVE_QT_FIND_LIB
+          fi dnl $with_Qt_lib_dir was not given
+        fi dnl Done setting up for non-traditional Trolltech installation
         if test "$ax_qt_dir" = NO ||
            test "$ax_qt_include_dir" = NO ||
            test "$ax_qt_lib_dir" = NO ||
@@ -273,63 +322,6 @@ AC_DEFUN([AX_HAVE_QT],
   if test x"$have_qt" = xyes; then
     _AX_HAVE_QT_VERIFY_TOOLCHAIN
   fi
-])
-
-dnl Internal subroutine of AX_HAVE_QT
-dnl Set ax_qt_dir ax_qt_include_dir ax_qt_bin_dir ax_qt_lib_dir ax_qt_lib
-AC_DEFUN([AX_PATH_QT_DIRECT],
-[
-  ## Binary utilities ##
-  if test x"$with_Qt_bin_dir" != x; then
-    ax_qt_bin_dir=$with_Qt_bin_dir
-  fi
-  ## Look for header files ##
-  if test x"$with_Qt_include_dir" != x; then
-    ax_qt_include_dir="$with_Qt_include_dir"
-  else
-    _AX_HAVE_QT_FIND_INCLUDE
-  fi dnl Found header files.
-
-  # Are these headers located in a traditional Trolltech installation?
-  # That would be $ax_qt_include_dir stripped from its last element:
-  ax_possible_qt_dir=`dirname $ax_qt_include_dir`
-  if (test -x $ax_possible_qt_dir/bin/moc) &&
-     ((ls $ax_possible_qt_dir/lib/libqt* > /dev/null 2>/dev/null) ||
-      (ls $ax_possible_qt_dir/lib64/libqt* > /dev/null 2>/dev/null)); then
-    # Then the rest is a piece of cake
-    ax_qt_dir=$ax_possible_qt_dir
-    ax_qt_bin_dir="$ax_qt_dir/bin"
-    if test x"$with_Qt_lib_dir" != x; then
-      ax_qt_lib_dir="$with_Qt_lib_dir"
-    else
-      if (test -d $ax_qt_dir/lib64); then
-        ax_qt_lib_dir="$ax_qt_dir/lib64"
-      else
-        ax_qt_lib_dir="$ax_qt_dir/lib"
-      fi
-    fi
-    # Only look for lib if the user did not supply it already
-    if test x"$ax_qt_lib" = xNO; then
-      ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
-                   sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
-    fi
-    ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-  else
-    # There is no valid definition for $QTDIR as Trolltech likes to see it
-    ax_qt_dir=
-    ## Look for Qt library ##
-    if test x"$with_Qt_lib_dir" != x; then
-      ax_qt_lib_dir="$with_Qt_lib_dir"
-      # Only look for lib if the user did not supply it already
-      if test x"$ax_qt_lib" = xNO; then
-        ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
-                     sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
-      fi
-      ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-    else
-      _AX_HAVE_QT_FIND_LIB
-    fi dnl $with_Qt_lib_dir was not given
-  fi dnl Done setting up for non-traditional Trolltech installation
 ])
 
 dnl Find the include directory for Qt.
