@@ -159,7 +159,6 @@ AC_DEFUN([AX_HAVE_QT],
         # We are not given a solution and there is no cached value.
         ax_qt_dir=NO
         ax_qt_include_dir=NO
-        ax_qt_CXXFLAGS=
         ax_qt_lib_dir=NO
         if test x"$ax_qt_lib" = x; then
           ax_qt_lib=NO
@@ -170,7 +169,7 @@ AC_DEFUN([AX_HAVE_QT],
         else
           _AX_HAVE_QT_FIND_INCLUDE
         fi
-        _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-I"$ax_qt_include_dir"])
+        _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [-I"$ax_qt_include_dir"])
 
         # Are these headers located in a traditional Trolltech installation?
         # That would be $ax_qt_include_dir stripped from its last element:
@@ -187,7 +186,8 @@ AC_DEFUN([AX_HAVE_QT],
               ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
                            sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
             fi
-            ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
+            # This blows away any previous QT_LIBS setting.
+            QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
           else
             if test x"$ax_qt_lib" = xNO; then
               ax_qt_lib=qt
@@ -213,18 +213,16 @@ AC_DEFUN([AX_HAVE_QT],
           ax_cv_have_qt="have_qt=yes                 \
                        ax_qt_dir=\"$ax_qt_dir\"          \
                ax_qt_include_dir=\"$ax_qt_include_dir\"  \
-               ax_qt_CXXFLAGS=\"$ax_qt_CXXFLAGS\"        \
+               QT_CXXFLAGS=\"$QT_CXXFLAGS\"        \
                    ax_qt_bin_dir=\"$ax_qt_bin_dir\"      \
-                      ax_qt_LIBS=\"$ax_qt_LIBS\""
+                      QT_LIBS=\"$QT_LIBS\""
         fi
       ])dnl
       eval "$ax_cv_have_qt"
     fi # all $ax_qt_* are set
   fi   # $have_qt reflects the system status
   if test x"$have_qt" = xyes; then
-    QT_CXXFLAGS="$ax_qt_CXXFLAGS"
     QT_DIR="$ax_qt_dir"
-    QT_LIBS="$ax_qt_LIBS"
     # If ax_qt_dir is defined, utilities are expected to be in the
     # bin subdirectory
     if test x"$with_Qt_bin_dir" != x; then
@@ -392,7 +390,7 @@ AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
     ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
                  sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
   fi
-  ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
+  QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
 ])
 
 dnl Find the include directory for Qt.
@@ -425,10 +423,8 @@ AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
   ])
 ])dnl _AX_HAVE_QT_FIND_INCLUDE
 
-dnl Add the specified module to ax_qt_LIBS, if it can be found.
-dnl
-dnl This macro modifies the following variables:
-dnl   ax_qt_LIBS - Adds the module, along with a path if one is needed
+dnl Ensure the specified module is available. If so, QT_LIBS and QT_CXXFLAGS
+dnl will be updated with the required dependencies.
 AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
   ax_qt_added_module=$1
   ax_qt_module_include_dir=
@@ -462,8 +458,8 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
   fi
   # First, attempt without any explicit library path
   _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,[],["$ax_qt_module_CXXFLAGS"], [
-    _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-    _AX_HAVE_QT_INSERT([ax_qt_LIBS], [-l$ax_qt_added_module])
+    _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
+    _AX_HAVE_QT_INSERT([QT_LIBS], [-l$ax_qt_added_module])
     $2
     :
   ],[
@@ -471,8 +467,8 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
       if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
         _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,["-L$ax_dir"],["$ax_qt_module_CXXFLAGS"],[
-          _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-          _AX_HAVE_QT_INSERT([ax_qt_LIBS], [-L$ax_dir -l$ax_qt_added_module])
+          _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
+          _AX_HAVE_QT_INSERT([QT_LIBS], [-L$ax_dir -l$ax_qt_added_module])
           ax_found_a_good_dir=yes
           $2
           break;
