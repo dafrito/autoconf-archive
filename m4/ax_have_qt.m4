@@ -150,17 +150,7 @@ AC_DEFUN([AX_HAVE_QT],
     fi
     # Check whether we were supplied with an answer already
     if test x"$with_Qt_dir" != x; then
-      have_qt=yes
-      ax_qt_dir="$with_Qt_dir"
-      ax_qt_include_dir="$with_Qt_dir/include"
-      ax_qt_bin_dir="$with_Qt_dir/bin"
-      ax_qt_lib_dir="$with_Qt_dir/lib"
-      # Only search for the lib if the user did not define one already
-      if test x"$ax_qt_lib" = x; then
-        ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
-                     sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
-      fi
-      ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      _AX_HAVE_QT_USE_QTDIR($with_Qt_dir)
     else
       # Use cached value or do search, starting with suggestions from
       # the command line
@@ -186,29 +176,9 @@ AC_DEFUN([AX_HAVE_QT],
 
         # Are these headers located in a traditional Trolltech installation?
         # That would be $ax_qt_include_dir stripped from its last element:
-        ax_possible_qt_dir=`dirname $ax_qt_include_dir`
-        if (test -x $ax_possible_qt_dir/bin/moc) &&
-           ((ls $ax_possible_qt_dir/lib/libqt* > /dev/null 2>/dev/null) ||
-            (ls $ax_possible_qt_dir/lib64/libqt* > /dev/null 2>/dev/null)); then
-          # Then the rest is a piece of cake
-          ax_qt_dir=$ax_possible_qt_dir
-          ax_qt_bin_dir="$ax_qt_dir/bin"
-          if test x"$with_Qt_lib_dir" != x; then
-            ax_qt_lib_dir="$with_Qt_lib_dir"
-          else
-            if (test -d $ax_qt_dir/lib64); then
-              ax_qt_lib_dir="$ax_qt_dir/lib64"
-            else
-              ax_qt_lib_dir="$ax_qt_dir/lib"
-            fi
-          fi
-          # Only look for lib if the user did not supply it already
-          if test x"$ax_qt_lib" = xNO; then
-            ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
-                         sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
-          fi
-          ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-        else
+        _AX_HAVE_QT_CHECK_FOR_QTDIR(`dirname $ax_qt_include_dir`, [
+          _AX_HAVE_QT_USE_QTDIR(`dirname $ax_qt_include_dir`)
+        ], [
           # There is no valid definition for $QTDIR as Trolltech likes to see it
           ax_qt_dir=
           ## Look for Qt library ##
@@ -382,6 +352,43 @@ AC_DEFUN([_AX_HAVE_QT_INSERT], [
     eval "$ax_target_variable=\""'$'"$ax_target_variable $ax_inserted_variable_list\""
   fi;
 ])dnl _AX_HAVE_QT_INSERT
+
+dnl Check if the specified directory is a traditional Qt directory, as provided
+dnl by Trolltech.
+AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
+  ax_qt_dir_candidate=$1
+  if (test -x $ax_qt_dir_candidate/bin/moc) &&
+     ((ls $ax_qt_dir_candidate/lib/libqt* > /dev/null 2>/dev/null) ||
+      (ls $ax_qt_dir_candidate/lib64/libqt* > /dev/null 2>/dev/null)); then
+    :
+    $2
+  else
+    :
+    $3
+  fi;
+])
+
+AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
+  ax_qt_dir="$1"
+  _AX_HAVE_QT_CHECK_FOR_QTDIR($ax_qt_dir,,[
+    AC_MSG_WARN([Specified Qt directory is not actually a Qt directory])
+  ])
+  have_qt=yes
+  ax_qt_include_dir="$ax_qt_dir/include"
+  ax_qt_bin_dir="$ax_qt_dir/bin"
+  ax_qt_lib_dir="$ax_qt_dir/lib"
+  if (test -d $ax_qt_dir/lib64); then
+    ax_qt_lib_dir="$ax_qt_dir/lib64"
+  else
+    ax_qt_lib_dir="$ax_qt_dir/lib"
+  fi
+  # Only search for the lib if the user did not define one already
+  if test x"$ax_qt_lib" = x; then
+    ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
+                 sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
+  fi
+  ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+])
 
 dnl Find the include directory for Qt.
 dnl
