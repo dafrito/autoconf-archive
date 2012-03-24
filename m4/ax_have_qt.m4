@@ -219,10 +219,10 @@ AC_DEFUN([AX_HAVE_QT],
         else
           # Record where we found Qt for the cache.
           ax_cv_have_qt="have_qt=yes                 \
-                       ax_qt_dir=$ax_qt_dir          \
-               ax_qt_include_dir=$ax_qt_include_dir  \
-               ax_qt_CXXFLAGS=$ax_qt_CXXFLAGS        \
-                   ax_qt_bin_dir=$ax_qt_bin_dir      \
+                       ax_qt_dir=\"$ax_qt_dir\"          \
+               ax_qt_include_dir=\"$ax_qt_include_dir\"  \
+               ax_qt_CXXFLAGS=\"$ax_qt_CXXFLAGS\"        \
+                   ax_qt_bin_dir=\"$ax_qt_bin_dir\"      \
                       ax_qt_LIBS=\"$ax_qt_LIBS\""
         fi
       ])dnl
