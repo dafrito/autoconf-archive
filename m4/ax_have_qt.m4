@@ -193,7 +193,7 @@ AC_DEFUN([AX_HAVE_QT],
               ax_qt_lib=qt
             fi
             for ax_possible_module in QtGui QtCore qt qt-mt qt-gl; do
-              _AX_HAVE_QT_ADD_MODULE($ax_possible_module,[
+              AX_HAVE_QT_MODULE($ax_possible_module,[
                 ax_qt_lib=$ax_possible_module
                 ax_qt_lib_dir=
               ],[
@@ -505,7 +505,7 @@ AC_DEFUN([AX_HAVE_QT_MODULE], [
       :
     fi
   ])
-])dnl _AX_HAVE_QT_ADD_MODULE
+])dnl AX_HAVE_QT_MODULE
 
 dnl Check for the specified Qt module.
 dnl
