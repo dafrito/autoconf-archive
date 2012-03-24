@@ -517,6 +517,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
     LIBS="-L$ax_qt_module_lib_dir $LIBS"
   fi
   if test x"$qt_direct_test_main" != x; then
+    AC_LANG_PUSH([C++])
     AC_TRY_LINK([#include <$qt_direct_test_header>],
       $qt_direct_test_main,
     [
@@ -527,6 +528,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       $4
       :
     ])
+    AC_LANG_POP([C++])
   fi;
   LIBS="$ax_save_LIBS"
   CXXFLAGS="$ax_save_CXXFLAGS"
