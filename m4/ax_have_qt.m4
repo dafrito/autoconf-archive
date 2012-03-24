@@ -164,10 +164,6 @@ AC_DEFUN([AX_HAVE_QT],
         if test x"$ax_qt_lib" = x; then
           ax_qt_lib=NO
         fi
-        ## Binary utilities ##
-        if test x"$with_Qt_bin_dir" != x; then
-          ax_qt_bin_dir=$with_Qt_bin_dir
-        fi
         ## Look for header files ##
         if test x"$with_Qt_include_dir" != x; then
           ax_qt_include_dir="$with_Qt_include_dir"
@@ -221,43 +217,37 @@ AC_DEFUN([AX_HAVE_QT],
     QT_LIBS="$ax_qt_LIBS"
     # If ax_qt_dir is defined, utilities are expected to be in the
     # bin subdirectory
-    if test x"$ax_qt_dir" != x; then
-        if test -x "$ax_qt_dir/bin/uic"; then
-          QT_UIC="$ax_qt_dir/bin/uic"
-        else
-          # Old versions of Qt don't have uic
-          QT_UIC=
-        fi
-      QT_MOC="$ax_qt_dir/bin/moc"
-      QT_LRELEASE="$ax_qt_dir/bin/lrelease"
-      QT_LUPDATE="$ax_qt_dir/bin/lupdate"
+    if test x"$with_Qt_bin_dir" != x; then
+      ax_qt_bin_dir=$with_Qt_bin_dir
     else
-      # Or maybe we are told where to look for the utilities
-      if test x"$ax_qt_bin_dir" != x; then
-        if test -x "$ax_qt_bin_dir/uic"; then
-          QT_UIC="$ax_qt_bin_dir/uic"
-        else
-          # Old versions of Qt don't have uic
-          QT_UIC=
-        fi
-        QT_MOC="$ax_qt_bin_dir/moc"
-        QT_LRELEASE="$ax_qt_bin_dir/lrelease"
-        QT_LUPDATE="$ax_qt_bin_dir/lupdate"
+      if test x"$ax_qt_dir" != x; then
+        ax_qt_bin_dir="$ax_qt_dir/bin"
+      fi
+    fi
+    if test x"$ax_qt_bin_dir" != x; then
+      if test -x "$ax_qt_bin_dir/uic"; then
+        QT_UIC="$ax_qt_bin_dir/uic"
       else
+        # Old versions of Qt don't have uic
+        QT_UIC=
+      fi
+      QT_MOC="$ax_qt_bin_dir/moc"
+      QT_LRELEASE="$ax_qt_bin_dir/lrelease"
+      QT_LUPDATE="$ax_qt_bin_dir/lupdate"
+    else
       # Last possibility is that they are in $PATH
-        if test x"`which moc`" != x; then
-          # Check if it's in the PATH
-          QT_UIC="`which uic`"
-          QT_MOC="`which moc`"
-          QT_LRELEASE="`which lrelease`"
-          QT_LUPDATE="`which lupdate`"
-        else
-          # Check if it's been packaged with a -qt4 suffix
-          QT_MOC="`which moc-qt4`"
-          QT_UIC="`which uic-qt4`"
-          QT_LRELEASE="`which lrelease-qt4`"
-          QT_LUPDATE="`which lupdate-qt4`"
-        fi
+      if test x"`which moc`" != x; then
+        # Check if it's in the PATH
+        QT_UIC="`which uic`"
+        QT_MOC="`which moc`"
+        QT_LRELEASE="`which lrelease`"
+        QT_LUPDATE="`which lupdate`"
+      else
+        # Check if it's been packaged with a -qt4 suffix
+        QT_MOC="`which moc-qt4`"
+        QT_UIC="`which uic-qt4`"
+        QT_LRELEASE="`which lrelease-qt4`"
+        QT_LUPDATE="`which lupdate-qt4`"
       fi
     fi
     # All variables are defined, report the result
