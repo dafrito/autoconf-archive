@@ -159,6 +159,7 @@ AC_DEFUN([AX_HAVE_QT],
         # We are not given a solution and there is no cached value.
         ax_qt_dir=NO
         ax_qt_include_dir=NO
+        ax_qt_CXXFLAGS=
         ax_qt_lib_dir=NO
         if test x"$ax_qt_lib" = x; then
           ax_qt_lib=NO
@@ -172,7 +173,8 @@ AC_DEFUN([AX_HAVE_QT],
           ax_qt_include_dir="$with_Qt_include_dir"
         else
           _AX_HAVE_QT_FIND_INCLUDE
-        fi dnl Found header files.
+        fi
+        _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-I"$ax_qt_include_dir"])
 
         # Are these headers located in a traditional Trolltech installation?
         # That would be $ax_qt_include_dir stripped from its last element:
@@ -202,9 +204,10 @@ AC_DEFUN([AX_HAVE_QT],
           ax_cv_have_qt="have_qt=no"
         else
           # Record where we found Qt for the cache.
-          ax_cv_have_qt="have_qt=yes                  \
+          ax_cv_have_qt="have_qt=yes                 \
                        ax_qt_dir=$ax_qt_dir          \
                ax_qt_include_dir=$ax_qt_include_dir  \
+               ax_qt_CXXFLAGS=$ax_qt_CXXFLAGS        \
                    ax_qt_bin_dir=$ax_qt_bin_dir      \
                       ax_qt_LIBS=\"$ax_qt_LIBS\""
         fi
@@ -213,10 +216,7 @@ AC_DEFUN([AX_HAVE_QT],
     fi # all $ax_qt_* are set
   fi   # $have_qt reflects the system status
   if test x"$have_qt" = xyes; then
-    QT_CXXFLAGS="-I$ax_qt_include_dir"
-    if test x"$ax_qt_lib" = xqt-mt; then
-        QT_CXXFLAGS="$QT_CXXFLAGS -DQT_THREAD_SUPPORT"
-    fi
+    QT_CXXFLAGS="$ax_qt_CXXFLAGS"
     QT_DIR="$ax_qt_dir"
     QT_LIBS="$ax_qt_LIBS"
     # If ax_qt_dir is defined, utilities are expected to be in the
