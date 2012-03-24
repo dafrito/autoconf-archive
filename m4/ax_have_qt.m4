@@ -349,7 +349,9 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
   ax_qt_dir_candidate=$1
   if (test -x $ax_qt_dir_candidate/bin/moc) &&
      ((ls $ax_qt_dir_candidate/lib/libqt* > /dev/null 2>/dev/null) ||
-      (ls $ax_qt_dir_candidate/lib64/libqt* > /dev/null 2>/dev/null)); then
+      (ls $ax_qt_dir_candidate/lib64/libqt* > /dev/null 2>/dev/null) ||
+      (ls $ax_qt_dir_candidate/lib/libQt* > /dev/null 2>/dev/null) ||
+      (ls $ax_qt_dir_candidate/lib64/libQt* > /dev/null 2>/dev/null)); then
     :
     $2
   else
