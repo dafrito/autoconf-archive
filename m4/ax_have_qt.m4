@@ -446,30 +446,22 @@ AC_DEFUN([_AX_HAVE_QT_FIND_LIB], [
         # That did not work. Maybe a library version I don't know about?
         echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
         # Look for some Qt lib in a standard set of common directories.
-        ax_dir_list="
-          `echo $ax_qt_includes | sed s@/include@@`
-          /lib
-    /usr/lib64
-          /usr/lib
-    /usr/local/lib64
-          /usr/local/lib
-    /opt/lib64
-          /opt/lib
-          `ls -dr /usr/lib64/qt* 2>/dev/null`
-          `ls -dr /usr/lib64/qt*/lib64 2>/dev/null`
-          `ls -dr /usr/lib/qt* 2>/dev/null`
-          `ls -dr /usr/local/qt* 2>/dev/null`
-          `ls -dr /opt/qt* 2>/dev/null`
-        "
-        for ax_dir in $ax_dir_list; do
-          if ls $ax_dir/libqt* >/dev/null 2>/dev/null; then
-            # Gamble that it's the first one...
-            ax_qt_lib="`ls $ax_dir/libqt* | sed -n 1p |
-                        sed s@$ax_dir/lib@@ | sed s/[[.]].*//`"
-            ax_qt_lib_dir="$ax_dir"
-            break
+        _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
+          for ax_dir in $ax_dir_root $ax_dir_root/lib64 $ax_dir_root/lib; do
+            if ls $ax_dir/libqt* >/dev/null 2>/dev/null; then
+              # Gamble that it's the first one...
+              ax_qt_lib="`ls $ax_dir/libqt* | sed -n 1p |
+                          sed s@$ax_dir/lib@@ | sed s/[[.]].*//`"
+              ax_qt_lib_dir="$ax_dir"
+              break
+            else
+              ax_qt_lib_dir=
+            fi
+          done;
+          if test x"$ax_qt_lib_dir" != x; then
+            break;
           fi
-        done
+        ])
       ])
     ])
   ])
