@@ -442,13 +442,17 @@ AC_DEFUN([_AX_HAVE_QT_FIND_LIB], [
     ax_qt_lib=qt
   fi
   # See if we find the library without any special options.
-  _AX_HAVE_QT_CHECK_LIB($ax_qt_lib,,[
+  _AX_HAVE_QT_CHECK_MODULE($ax_qt_lib,[
+    ax_qt_lib=$ax_qt_lib
+  ],[
     # That did not work. Try the multi-threaded version
     echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-    _AX_HAVE_QT_CHECK_LIB(qt-mt,,[
+    _AX_HAVE_QT_CHECK_MODULE(qt-mt,[
+      _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-DQT_THREAD_SUPPORT])
+    ],[
       # That did not work. Try the OpenGL version
       echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-      _AX_HAVE_QT_CHECK_LIB(qt-gl,,[
+      _AX_HAVE_QT_CHECK_MODULE(qt-gl,,[
         # That did not work. Maybe a library version I don't know about?
         echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
         # Look for some Qt lib in a standard set of common directories.
@@ -487,30 +491,70 @@ AC_DEFUN([_AX_HAVE_QT_FIND_LIB], [
 ])dnl _AX_HAVE_QT_FIND_LIB
 
 dnl Check for the specified Qt library.
-AC_DEFUN([_AX_HAVE_QT_CHECK_LIB], [
+AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
   ax_save_LIBS="$LIBS"
   ax_save_CXXFLAGS="$CXXFLAGS"
-  ax_qt_lib=$1
+  ax_qt_module_lib=$1
+  ax_qt_module_lib_dir=$2
   CXXFLAGS="-I$ax_qt_include_dir"
-  LIBS="-l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
-  ax_qt_LIBS="$LIBS"
-  qt_direct_test_header=qapplication.h
-  qt_direct_test_main="
-    int argc;
-    char ** argv;
-    QApplication app (argc,argv);
-  "
-  AC_TRY_LINK([#include <$qt_direct_test_header>],
-    $qt_direct_test_main,
-  [
-    # Success.
-    # We can link with no special library directory.
-    ax_qt_lib_dir=
-    $2
-  ], [
-    ax_qt_LIBS=
-    $3
-  ])
+  LIBS=
+  qt_direct_test_header=
+  qt_direct_test_main=
+  case "$ax_qt_module_lib" in
+    qt-mt)
+      LIBS="-l$ax_qt_module_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      CXXFLAGS="$CXXFLAGS -DQT_THREAD_SUPPORT"
+      qt_direct_test_header=qapplication.h
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QApplication app (argc,argv);
+      "
+      ;;
+    qt|qt-gl)
+      LIBS="-l$ax_qt_module_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      qt_direct_test_header=qapplication.h
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QApplication app (argc,argv);
+      "
+      ;;
+    QtCore)
+      LIBS="-l$ax_qt_module_lib"
+      qt_direct_test_header=qcoreapplication.h
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QCoreApplication app (argc,argv);
+      "
+      ;;
+    QtGui)
+      LIBS="-l$ax_qt_module_lib -lQtCore $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      qt_direct_test_header=qapplication.h
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QApplication app (argc,argv);
+      "
+      ;;
+  esac;
+  if test x"$ax_qt_module_lib_dir" != x; then
+    LIBS="-L$ax_qt_module_lib_dir $LIBS"
+  fi
+  if test x"$qt_direct_test_main" != x; then
+    AC_TRY_LINK([#include <$qt_direct_test_header>],
+      $qt_direct_test_main,
+    [
+      # Successfully linked our test code.
+      $2
+      :
+    ], [
+      LIBS=
+      $3
+      :
+    ])
+  fi;
   LIBS="$ax_save_LIBS"
   CXXFLAGS="$ax_save_CXXFLAGS"
 ])
