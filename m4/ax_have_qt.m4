@@ -189,7 +189,25 @@ AC_DEFUN([AX_HAVE_QT],
             fi
             ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
           else
-            _AX_HAVE_QT_FIND_LIB
+            if test x"$ax_qt_lib" = xNO; then
+              ax_qt_lib=qt
+            fi
+            for ax_possible_module in QtCore qt qt-mt qt-gl; do
+              _AX_HAVE_QT_ADD_MODULE($ax_possible_module,[
+                ax_qt_lib=$ax_possible_module
+                ax_qt_lib_dir=
+                case x"$ax_possible_module" in
+                  xqt-mt)
+                    _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-DQT_THREAD_SUPPORT])
+                    ;;
+                  xQtCore)
+                    _AX_HAVE_QT_ADD_MODULE(QtGui)
+                    ;;
+                 esac
+              ],[
+                echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
+              ])
+            done
           fi dnl $with_Qt_lib_dir was not given
         ])
         if test "$ax_qt_dir" = NO ||
@@ -413,43 +431,6 @@ AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
     done
   ])
 ])dnl _AX_HAVE_QT_FIND_INCLUDE
-
-dnl Find the library linker path for Qt.
-dnl
-dnl This macro is not intended to be called by end-users.
-dnl
-dnl This macro uses the following variables:
-dnl   ax_qt_include_dir - the path believed to contain Qt's header files
-dnl   ax_qt_lib - a user-specified library name that will be used for linking
-dnl
-dnl This macro sets the following variables:
-dnl   ax_qt_LIBS - the set of libraries required to link Qt
-dnl   ax_qt_lib_dir - the path believed to contain Qt's libraries. This may be
-dnl     empty if there's no need for specific path.
-dnl
-AC_DEFUN([_AX_HAVE_QT_FIND_LIB], [
-  # Normally, when there is no traditional Trolltech installation,
-  # the library is installed in a place where the linker finds it
-  # automatically.
-  # If the user did not define the library name, try with qt
-  if test x"$ax_qt_lib" = xNO; then
-    ax_qt_lib=qt
-  fi
-  for ax_possible_module in QtCore qt qt-mt qt-gl; do
-    _AX_HAVE_QT_ADD_MODULE($ax_possible_module,[
-      case x"$ax_possible_module" in
-        xqt-mt)
-          _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-DQT_THREAD_SUPPORT])
-          ;;
-        xQtCore)
-          _AX_HAVE_QT_ADD_MODULE(QtGui)
-          ;;
-       esac
-    ],[
-      echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-    ])
-  done
-])dnl _AX_HAVE_QT_FIND_LIB
 
 dnl Add the specified module to ax_qt_LIBS, if it can be found.
 dnl
