@@ -457,6 +457,11 @@ AC_DEFUN([AX_HAVE_QT_MODULE], [
     qt*) ax_qt_header_name="qglobal.h" ;;
     QtCore) ax_qt_header_name="QCoreApplcation" ;;
     QtGui) ax_qt_header_name="QApplication" ;;
+    QtOpenGL) ax_qt_header_name="QGLWidget" ;;
+    QtSql) ax_qt_header_name="QSqlDatabase" ;;
+    QtXml) ax_qt_header_name="QXmlSimpleReader" ;;
+    QtTest) ax_qt_header_name="QTestEventList" ;;
+    QtNetwork) ax_qt_header_name="QLocalSocket" ;;
   esac;
   _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
     for ax_dir in $ax_dir_root $ax_dir_root/include; do
@@ -556,12 +561,67 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
         QApplication app (argc,argv);
       "
       ;;
+    QtOpenGL)
+      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS -lQtCore -lQtGui"
+      qt_direct_test_header="QApplication QGLWidget"
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QApplication app (argc,argv);
+        QGLWidget widget;
+      "
+      ;;
+    QtXml)
+      LIBS="-lQtCore"
+      qt_direct_test_header="QCoreApplication QXmlSimpleReader"
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QCoreApplication app (argc,argv);
+        QXmlSimpleReader reader;
+      "
+      ;;
+    QtTest)
+      LIBS="-lQtCore"
+      qt_direct_test_header="QCoreApplication QTestEventList"
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QCoreApplication app (argc,argv);
+        QTestEventList eventList;
+      "
+      ;;
+    QtSql)
+      LIBS="-lQtCore"
+      qt_direct_test_header="QCoreApplication QSqlDatabase"
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QCoreApplication app (argc,argv);
+        QSqlDatabase db;
+      "
+      ;;
+    QtNetwork)
+      LIBS="-lQtCore"
+      qt_direct_test_header="QCoreApplication QLocalSocket"
+      qt_direct_test_main="
+        int argc;
+        char ** argv;
+        QCoreApplication app (argc,argv);
+        QLocalSocket socket;
+      "
+      ;;
   esac;
   CXXFLAGS="$ax_qt_module_CXXFLAGS $CXXFLAGS"
   LIBS="$ax_qt_module_LIBS -l$ax_qt_module_lib $LIBS"
+  ax_module_include_statement=
+  for ax_included in $qt_direct_test_header; do
+    ax_module_include_statement="$ax_module_include_statement
+      #include <$ax_included>"
+  done
   if test x"$qt_direct_test_main" != x; then
     AC_LANG_PUSH([C++])
-    AC_TRY_LINK([#include <$qt_direct_test_header>],
+    AC_TRY_LINK([$ax_module_include_statement],
       $qt_direct_test_main,
     [
       LIBS="$ax_save_LIBS"
