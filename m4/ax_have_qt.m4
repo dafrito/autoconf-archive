@@ -564,17 +564,19 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
     AC_TRY_LINK([#include <$qt_direct_test_header>],
       $qt_direct_test_main,
     [
+      LIBS="$ax_save_LIBS"
+      CXXFLAGS="$ax_save_CXXFLAGS"
       # Successfully linked our test code.
       $4
       :
     ], [
+      LIBS="$ax_save_LIBS"
+      CXXFLAGS="$ax_save_CXXFLAGS"
       $5
       :
     ])
     AC_LANG_POP([C++])
   fi;
-  LIBS="$ax_save_LIBS"
-  CXXFLAGS="$ax_save_CXXFLAGS"
 ])
 
 AC_DEFUN([_AX_HAVE_QT_VERIFY_TOOLCHAIN], [
