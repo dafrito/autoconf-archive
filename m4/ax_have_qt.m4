@@ -476,7 +476,7 @@ AC_DEFUN([AX_HAVE_QT_MODULE], [
     ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -I$ax_qt_module_include_dir";
   fi
   # First, attempt without any explicit library path
-  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,[],["$ax_qt_module_CXXFLAGS"], [
+  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,[],["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
     _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
     _AX_HAVE_QT_INSERT([QT_LIBS], [-l$ax_qt_added_module])
     $2
@@ -485,7 +485,7 @@ AC_DEFUN([AX_HAVE_QT_MODULE], [
     ax_found_a_good_dir=no
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
       if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
-        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,["-L$ax_dir"],["$ax_qt_module_CXXFLAGS"],[
+        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,["-L$ax_dir"],["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"],[
           _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
           _AX_HAVE_QT_INSERT([QT_LIBS], [-L$ax_dir -l$ax_qt_added_module])
           ax_found_a_good_dir=yes
