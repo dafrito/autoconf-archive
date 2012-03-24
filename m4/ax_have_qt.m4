@@ -192,7 +192,7 @@ AC_DEFUN([AX_HAVE_QT],
             if test x"$ax_qt_lib" = xNO; then
               ax_qt_lib=qt
             fi
-            for ax_possible_module in QtCore qt qt-mt qt-gl; do
+            for ax_possible_module in QtGui QtCore qt qt-mt qt-gl; do
               _AX_HAVE_QT_ADD_MODULE($ax_possible_module,[
                 ax_qt_lib=$ax_possible_module
                 ax_qt_lib_dir=
