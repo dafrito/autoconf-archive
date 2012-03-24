@@ -404,32 +404,20 @@ AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
   qt_direct_test_header=qglobal.h
   # Look for the header file in a standard set of common directories.
   ax_prev_ver=0
-  for ax_include_dir_root in \
-    "${QTDIR}/include" \
-    /usr/include \
-    /usr/lib \
-    /usr/lib64 \
-    /usr/local \
-    /opt/ \
-    /Developer;
-  do
-    for ax_dir in \
-      "$ax_include_dir_root" \
-      `ls -dr $ax_include_dir_root/qt*/include 2>/dev/null` \
-      `ls -dr $ax_include_dir_root/Qt*/include 2>/dev/null` \
-      `ls -dr $ax_include_dir_root/qt* 2>/dev/null` \
-      `ls -dr $ax_include_dir_root/Qt* 2>/dev/null`;
-    do
+  _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
+    for ax_dir in $ax_dir_root $ax_dir_root/include; do
       if test -r "$ax_dir/$qt_direct_test_header"; then
-        # Check if this directory contains a newer library than our previous candidate.
-        ax_this_ver=`sed -nre 's/^[ ]*#define[ ]+QT_VERSION[ ]+//p' $ax_dir/$qt_direct_test_header`
+        # Check if this directory contains a newer library than our
+        # previous candidate.
+        ax_this_ver=`sed -nre 's/^[ ]*#define[ ]+QT_VERSION[ ]+//p' \
+          $ax_dir/$qt_direct_test_header`
         if expr $ax_this_ver '>' $ax_prev_ver > /dev/null; then
           ax_qt_include_dir=$ax_dir
           ax_prev_ver=$ax_this_ver
         fi
       fi
     done
-  done
+  ])
 ])dnl _AX_HAVE_QT_FIND_INCLUDE
 
 dnl Find the library linker path for Qt.
