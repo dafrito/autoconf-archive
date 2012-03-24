@@ -285,8 +285,10 @@ AC_DEFUN([AX_HAVE_QT],
 ])
 
 AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
-  for ax_for_each_dir_root in \
+  for ax_for_each_dir_root in $3 \
     "${QTDIR}" \
+    /lib64 \
+    /lib \
     /usr \
     /usr/lib64 \
     /usr/lib \
@@ -433,46 +435,52 @@ AC_DEFUN([_AX_HAVE_QT_FIND_LIB], [
   if test x"$ax_qt_lib" = xNO; then
     ax_qt_lib=qt
   fi
-  # See if we find the library without any special options.
-  _AX_HAVE_QT_CHECK_MODULE($ax_qt_lib,[
-    ax_qt_lib=$ax_qt_lib
-  ],[
-    # That did not work. Try the multi-threaded version
-    echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-    _AX_HAVE_QT_CHECK_MODULE(qt-mt,[
-      _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-DQT_THREAD_SUPPORT])
+  for ax_possible_module in QtCore qt qt-mt qt-gl; do
+    _AX_HAVE_QT_ADD_MODULE($ax_possible_module,[
+      case x"$ax_possible_module" in
+        xqt-mt)
+          _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-DQT_THREAD_SUPPORT])
+          ;;
+        xQtCore)
+          _AX_HAVE_QT_ADD_MODULE(QtGui)
+          ;;
+       esac
     ],[
-      # That did not work. Try the OpenGL version
       echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-      _AX_HAVE_QT_CHECK_MODULE(qt-gl,,[
-        # That did not work. Maybe a library version I don't know about?
-        echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
-        # Look for some Qt lib in a standard set of common directories.
-        _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
-          for ax_dir in $ax_dir_root $ax_dir_root/lib64 $ax_dir_root/lib; do
-            if ls $ax_dir/libqt* >/dev/null 2>/dev/null; then
-              # Gamble that it's the first one...
-              ax_qt_lib="`ls $ax_dir/libqt* | sed -n 1p |
-                          sed s@$ax_dir/lib@@ | sed s/[[.]].*//`"
-              ax_qt_lib_dir="$ax_dir"
-              break
-            else
-              ax_qt_lib_dir=
-            fi
-          done;
-          if test x"$ax_qt_lib_dir" != x; then
-            break;
-          fi
-        ])
-      ])
     ])
-  ])
-  if test x"$ax_qt_lib_dir" != x; then
-    ax_qt_LIBS="-L$ax_qt_lib_dir $LIBS"
-  else
-    ax_qt_LIBS="$LIBS"
-  fi
+  done
 ])dnl _AX_HAVE_QT_FIND_LIB
+
+dnl Add the specified module to ax_qt_LIBS, if it can be found.
+dnl
+dnl This macro modifies the following variables:
+dnl   ax_qt_LIBS - Adds the module, along with a path if one is needed
+AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
+  ax_qt_added_module=$1
+  # First, attempt without any explicit library path
+  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,,[
+    _AX_HAVE_QT_INSERT([ax_qt_LIBS], [-l$ax_qt_added_module])
+    $2
+    :
+  ],[
+    ax_found_a_good_dir=no
+    _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
+      if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
+        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,$ax_dir,[
+          _AX_HAVE_QT_INSERT([ax_qt_LIBS], [-L$ax_dir -l$ax_qt_added_module])
+          ax_found_a_good_dir=yes
+          $2
+          break;
+        ])
+      fi
+    ])
+    if test x"$ax_found_a_good_dir" != xyes; then
+      # No luck adding this module
+      $3
+      :
+    fi
+  ])
+])dnl _AX_HAVE_QT_ADD_MODULE
 
 dnl Check for the specified Qt library.
 AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
@@ -531,11 +539,10 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       $qt_direct_test_main,
     [
       # Successfully linked our test code.
-      $2
+      $3
       :
     ], [
-      LIBS=
-      $3
+      $4
       :
     ])
   fi;
