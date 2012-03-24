@@ -187,7 +187,7 @@ AC_DEFUN([AX_HAVE_QT],
               ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
                            sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
             fi
-            ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+            ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
           else
             if test x"$ax_qt_lib" = xNO; then
               ax_qt_lib=qt
@@ -196,14 +196,6 @@ AC_DEFUN([AX_HAVE_QT],
               _AX_HAVE_QT_ADD_MODULE($ax_possible_module,[
                 ax_qt_lib=$ax_possible_module
                 ax_qt_lib_dir=
-                case x"$ax_possible_module" in
-                  xqt-mt)
-                    _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [-DQT_THREAD_SUPPORT])
-                    ;;
-                  xQtCore)
-                    _AX_HAVE_QT_ADD_MODULE(QtGui)
-                    ;;
-                 esac
               ],[
                 echo "Non-critical error, please neglect the above." >&AS_MESSAGE_LOG_FD
               ])
@@ -400,7 +392,7 @@ AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
     ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
                  sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
   fi
-  ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+  ax_qt_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
 ])
 
 dnl Find the include directory for Qt.
@@ -439,8 +431,38 @@ dnl This macro modifies the following variables:
 dnl   ax_qt_LIBS - Adds the module, along with a path if one is needed
 AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
   ax_qt_added_module=$1
+  ax_qt_module_include_dir=
+  # Find the include directory first
+  ax_qt_header_name=
+  ax_qt_module_CXXFLAGS=
+  case "$ax_qt_added_module" in
+    qt-mt)
+      ax_qt_header_name="qglobal.h"
+      ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -DQT_THREAD_SUPPORT" ;;
+    qt*) ax_qt_header_name="qglobal.h" ;;
+    QtCore) ax_qt_header_name="QCoreApplcation" ;;
+    QtGui) ax_qt_header_name="QApplication" ;;
+  esac;
+  _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
+    for ax_dir in $ax_dir_root $ax_dir_root/include; do
+      if test -r "$ax_dir/$ax_qt_header_name"; then
+        ax_qt_module_include_dir="$ax_dir"
+        break;
+      fi;
+    done;
+    if test x"$ax_qt_module_include_dir" != x; then
+      break;
+    fi
+  ])
+  if test x"$ax_qt_include_dir" != x; then
+    ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -I$ax_qt_include_dir";
+  fi
+  if test x"$ax_qt_module_include_dir" != x; then
+    ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -I$ax_qt_module_include_dir";
+  fi
   # First, attempt without any explicit library path
-  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,,[
+  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,[],["$ax_qt_module_CXXFLAGS"], [
+    _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
     _AX_HAVE_QT_INSERT([ax_qt_LIBS], [-l$ax_qt_added_module])
     $2
     :
@@ -448,7 +470,8 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
     ax_found_a_good_dir=no
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
       if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
-        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,$ax_dir,[
+        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,["-L$ax_dir"],["$ax_qt_module_CXXFLAGS"],[
+          _AX_HAVE_QT_INSERT([ax_qt_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
           _AX_HAVE_QT_INSERT([ax_qt_LIBS], [-L$ax_dir -l$ax_qt_added_module])
           ax_found_a_good_dir=yes
           $2
@@ -469,14 +492,15 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
   ax_save_LIBS="$LIBS"
   ax_save_CXXFLAGS="$CXXFLAGS"
   ax_qt_module_lib=$1
-  ax_qt_module_lib_dir=$2
-  CXXFLAGS="-I$ax_qt_include_dir"
+  ax_qt_module_LIBS=$2
+  ax_qt_module_CXXFLAGS=$3
+  CXXFLAGS=
   LIBS=
   qt_direct_test_header=
   qt_direct_test_main=
   case "$ax_qt_module_lib" in
     qt-mt)
-      LIBS="-l$ax_qt_module_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
       CXXFLAGS="$CXXFLAGS -DQT_THREAD_SUPPORT"
       qt_direct_test_header=qapplication.h
       qt_direct_test_main="
@@ -486,7 +510,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     qt|qt-gl)
-      LIBS="-l$ax_qt_module_lib $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
       qt_direct_test_header=qapplication.h
       qt_direct_test_main="
         int argc;
@@ -495,7 +519,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtCore)
-      LIBS="-l$ax_qt_module_lib"
       qt_direct_test_header=qcoreapplication.h
       qt_direct_test_main="
         int argc;
@@ -504,7 +527,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtGui)
-      LIBS="-l$ax_qt_module_lib -lQtCore $X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS -lQtCore"
       qt_direct_test_header=qapplication.h
       qt_direct_test_main="
         int argc;
@@ -513,19 +536,18 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
   esac;
-  if test x"$ax_qt_module_lib_dir" != x; then
-    LIBS="-L$ax_qt_module_lib_dir $LIBS"
-  fi
+  CXXFLAGS="$ax_qt_module_CXXFLAGS $CXXFLAGS"
+  LIBS="$ax_qt_module_LIBS -l$ax_qt_module_lib $LIBS"
   if test x"$qt_direct_test_main" != x; then
     AC_LANG_PUSH([C++])
     AC_TRY_LINK([#include <$qt_direct_test_header>],
       $qt_direct_test_main,
     [
       # Successfully linked our test code.
-      $3
+      $4
       :
     ], [
-      $4
+      $5
       :
     ])
     AC_LANG_POP([C++])
