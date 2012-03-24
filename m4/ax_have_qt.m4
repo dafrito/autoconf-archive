@@ -292,6 +292,15 @@ AC_DEFUN([AX_HAVE_QT],
   fi
 ])
 
+dnl Iterate over a set of common directories, executing specified shell script for each entry.
+dnl
+dnl The first argument specifies the variable name of a given directory. This name should be used
+dnl in the specified shell script.
+dnl
+dnl The second argument consists of shell script that will be executed for each entry. If the shell
+dnl script calls "break", then iteration will immediately stop.
+dnl
+dnl The third argument consists of any extra directories that will be iterated.
 AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
   for ax_for_each_dir_root in $3 \
     "${QTDIR}" \
@@ -356,6 +365,11 @@ AC_DEFUN([_AX_HAVE_QT_INSERT], [
 
 dnl Check if the specified directory is a traditional Qt directory, as provided
 dnl by Trolltech.
+dnl
+dnl The first argument must be the path of the canonical Qt installation.
+dnl
+dnl The second and third arguments optionally specify any shell script that will be
+dnl run on the success or failure, respectively, of this test.
 AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
   ax_qt_dir_candidate=$1
   if (test -x $ax_qt_dir_candidate/bin/moc) &&
@@ -371,6 +385,8 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
   fi;
 ])
 
+dnl Force Autoconf to use the specified directory as the canonical Qt installation.
+dnl Where applicable, these contents will be preferred over external ones.
 AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
   ax_qt_dir="$1"
   _AX_HAVE_QT_CHECK_FOR_QTDIR($ax_qt_dir,,[
@@ -393,11 +409,9 @@ AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
   QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
 ])
 
-dnl Find the include directory for Qt.
-dnl
-dnl This macro is not intended to be called by end-users.
-dnl
-dnl This macro doesn't use any external variables.
+dnl Find the legacy include directory for Qt. While this is still used for modern
+dnl versions of Qt, it is preferable to include the module header directories
+dnl themselves.
 dnl
 dnl This macro sets the following variables:
 dnl   ax_qt_include_dir - the path believed to contain Qt's header files
@@ -425,7 +439,12 @@ AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
 
 dnl Ensure the specified module is available. If so, QT_LIBS and QT_CXXFLAGS
 dnl will be updated with the required dependencies.
-AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
+dnl
+dnl The first argument must be the name of the module.
+dnl
+dnl The second and third arguments consist of shell script that will be run on
+dnl success or failure, respectively,  of this test.
+AC_DEFUN([AX_HAVE_QT_MODULE], [
   ax_qt_added_module=$1
   ax_qt_module_include_dir=
   # Find the include directory first
@@ -483,7 +502,13 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
   ])
 ])dnl _AX_HAVE_QT_ADD_MODULE
 
-dnl Check for the specified Qt library.
+dnl Check for the specified Qt module.
+dnl
+dnl The second and third arguments will specify and LIBS and CXXFLAGS,
+dnl respectively, that will be used during testing.
+dnl
+dnl The fourth and fifth arguments consist of shell script that will be
+dnl run on success or failure of this test.
 AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
   ax_save_LIBS="$LIBS"
   ax_save_CXXFLAGS="$CXXFLAGS"
