@@ -195,7 +195,7 @@ AC_DEFUN([AX_HAVE_QT],
           else
             _AX_HAVE_QT_FIND_LIB
           fi dnl $with_Qt_lib_dir was not given
-        fi dnl Done setting up for non-traditional Trolltech installation
+        ])
         if test "$ax_qt_dir" = NO ||
            test "$ax_qt_include_dir" = NO ||
            test "$ax_qt_lib_dir" = NO ||
