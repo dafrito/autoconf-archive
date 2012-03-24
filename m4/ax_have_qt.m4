@@ -308,6 +308,7 @@ AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
     /lib64 \
     /lib \
     /usr \
+    /usr/include \
     /usr/lib64 \
     /usr/lib \
     /usr/local \
