@@ -324,6 +324,65 @@ AC_DEFUN([AX_HAVE_QT],
   fi
 ])
 
+AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
+  for ax_for_each_dir_root in \
+    "${QTDIR}" \
+    /usr \
+    /usr/lib64 \
+    /usr/lib \
+    /usr/local \
+    /opt \
+    /Developer;
+  do
+    for $1 in \
+      "$ax_for_each_dir_root" \
+      `ls -dr $ax_dir_root/qt* 2>/dev/null` \
+      `ls -dr $ax_dir_root/Qt* 2>/dev/null`;
+    do
+      ax_continue_flag=
+      $2
+      # Detect if we broke out of the for-loop using this flag
+      ax_continue_flag=yes
+    done
+    if test x"$ax_continue_flag" != xyes; then
+      break;
+    fi;
+  done
+])
+
+dnl Add a parameter to the specified variable.
+dnl
+dnl The first parameter is the name of the variable that will be modified.
+dnl The second parameter is the parameter that will be added. Multiple parameters
+dnl are allowed.
+dnl
+dnl The third parameter will, if "yes", force the variable to be added to the front, rather
+dnl than the back of the specified variable.
+AC_DEFUN([_AX_HAVE_QT_INSERT], [
+  ax_target_variable=$1
+  ax_all_inserted_values=$2
+  ax_insert_to_front=$3
+  ax_inserted_variable_list=
+  for ax_one_inserted_value in $2; do
+    ax_do_insertion=yes
+    for ax_this_value in $$1; do
+      if test x"$ax_this_value" = x"$ax_one_inserted_value"; then
+        # Value is already present, so no need to insert it again
+        ax_do_insertion=
+        break
+      fi
+    done
+    if test x"$ax_do_insertion" = xyes; then
+      ax_inserted_variable_list="$ax_inserted_variable_list $ax_one_inserted_value"
+    fi
+  done
+  if test x"$ax_insert_to_front" = xyes; then
+    eval "$ax_target_variable=\"$ax_inserted_variable_list "'$'"$ax_target_variable\""
+  else
+    eval "$ax_target_variable=\""'$'"$ax_target_variable $ax_inserted_variable_list\""
+  fi;
+])dnl _AX_HAVE_QT_INSERT
+
 dnl Find the include directory for Qt.
 dnl
 dnl This macro is not intended to be called by end-users.
