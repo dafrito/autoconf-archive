@@ -502,7 +502,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
     qt-mt)
       LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
       CXXFLAGS="$CXXFLAGS -DQT_THREAD_SUPPORT"
-      qt_direct_test_header=qapplication.h
+      qt_direct_test_header=QApplication
       qt_direct_test_main="
         int argc;
         char ** argv;
@@ -511,7 +511,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       ;;
     qt|qt-gl)
       LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
-      qt_direct_test_header=qapplication.h
+      qt_direct_test_header=QApplication
       qt_direct_test_main="
         int argc;
         char ** argv;
@@ -519,7 +519,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtCore)
-      qt_direct_test_header=qcoreapplication.h
+      qt_direct_test_header=QCoreApplication
       qt_direct_test_main="
         int argc;
         char ** argv;
@@ -528,7 +528,7 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       ;;
     QtGui)
       LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS -lQtCore"
-      qt_direct_test_header=qapplication.h
+      qt_direct_test_header=QApplication
       qt_direct_test_main="
         int argc;
         char ** argv;
@@ -561,7 +561,7 @@ AC_DEFUN([_AX_HAVE_QT_VERIFY_TOOLCHAIN], [
   AC_CACHE_VAL(ax_cv_qt_test_result,
   [
     cat > ax_qt_test.h << EOF
-#include <qobject.h>
+#include <QObject>
 class Test : public QObject
 {
 Q_OBJECT
@@ -577,7 +577,7 @@ EOF
 
     cat > ax_qt_main.$ac_ext << EOF
 #include "ax_qt_test.h"
-#include <qapplication.h>
+#include <QApplication>
 int main( int argc, char **argv )
 {
 QApplication app( argc, argv );
