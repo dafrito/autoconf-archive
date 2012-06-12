@@ -340,7 +340,6 @@ dnl The third parameter will, if "yes", force the variable to be added to the fr
 dnl than the back of the specified variable.
 AC_DEFUN([_AX_HAVE_QT_INSERT], [
   ax_target_variable=$1
-  ax_all_inserted_values=$2
   ax_insert_to_front=$3
   ax_inserted_variable_list=
   for ax_one_inserted_value in $2; do
