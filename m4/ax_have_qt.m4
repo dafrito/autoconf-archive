@@ -307,10 +307,20 @@ AC_DEFUN([AX_HAVE_QT],
 
 AC_DEFUN([AX_HAVE_QT_CORE], [
   AC_MSG_CHECKING([QtCore])
-  _AX_HAVE_QT_MODULE([QtCore], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_QT_CORE],,[define if the QtCore module is available])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtCore],
+    [QCoreApplication],
+    [[
+      int    argc;
+      char **argv;
+      QCoreApplication app(argc, argv);
+    ]],
+    , dnl CXXFLAGS
+    , dnl LIBS
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_CORE],,[define if the QtCore module is available])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
@@ -320,10 +330,20 @@ AC_DEFUN([AX_HAVE_QT_GUI], [
   AC_REQUIRE([AC_PATH_X])
   AC_REQUIRE([AC_PATH_XTRA])
   AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtGui], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_QT_GUI],,[define if the QtGui module is available])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtGui],
+    [QApplication],
+    [[
+      int    argc;
+      char **argv;
+      QApplication app(argc, argv);
+    ]],
+    [$X_CFLAGS],
+    [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS],
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_GUI],,[define if the QtGui module is available])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
@@ -332,10 +352,16 @@ AC_DEFUN([AX_HAVE_QT_TEST], [
   AC_MSG_CHECKING([QtTest])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   AC_REQUIRE([AX_HAVE_QT_MOC])
-  _AX_HAVE_QT_MODULE([QtTest], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_QT_TEST],,[define if the QtTest module is available])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtTest],
+    [QCoreApplication QTestEventList],
+    [_AX_HAVE_QT_BASIC_PROGRAM([QTestEventList])],
+    , dnl CXXFLAGS
+    , dnl LIBS
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_TEST],,[define if the QtTest module is available])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
@@ -343,10 +369,16 @@ AC_DEFUN([AX_HAVE_QT_TEST], [
 AC_DEFUN([AX_HAVE_QT_SQL], [
   AC_MSG_CHECKING([QtSql])
   AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtSql], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_QT_SQL],,[define if the QtSql module is available])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtSql],
+    [QCoreApplication QSqlDatabase],
+    [_AX_HAVE_QT_BASIC_PROGRAM([QSqlDatabase])],
+    , dnl CXXFLAGS
+    , dnl LIBS
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_SQL],,[define if the QtSql module is available])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
@@ -354,10 +386,16 @@ AC_DEFUN([AX_HAVE_QT_SQL], [
 AC_DEFUN([AX_HAVE_QT_NETWORK], [
   AC_MSG_CHECKING([QtNetwork])
   AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtNetwork], [
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_QT_NETWORK],,[define if the QtNetwork module is available])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtNetwork],
+    [QCoreApplication QLocalSocket],
+    [_AX_HAVE_QT_BASIC_PROGRAM([QLocalSocket])],
+    , dnl CXXFLAGS
+    , dnl LIBS
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_NETWORK],,[define if the QtNetwork module is available])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
@@ -365,10 +403,16 @@ AC_DEFUN([AX_HAVE_QT_NETWORK], [
 AC_DEFUN([AX_HAVE_QT_XML], [
   AC_MSG_CHECKING([QtXml])
   AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtXml], [
-    AC_DEFINE([HAVE_QT_XML],,[define if the QtXml module is available])
-    AC_MSG_RESULT([yes])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtXml],
+    [QCoreApplication QXmlSimpleReader],
+    [_AX_HAVE_QT_BASIC_PROGRAM([QXmlSimpleReader])],
+    , dnl CXXFLAGS
+    , dnl LIBS
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_XML],,[define if the QtXml module is available])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
@@ -379,252 +423,141 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
   AC_REQUIRE([AC_PATH_XTRA])
   AC_REQUIRE([AX_HAVE_OPENGL])
   AC_REQUIRE([AX_HAVE_QT_GUI])
-  _AX_HAVE_QT_MODULE([QtOpenGL], [
-    AC_DEFINE([HAVE_QT_OPENGL],,[define if the QtOpenGL module is available])
-    AC_MSG_RESULT([yes])
-  ], [
+  _AX_HAVE_QT_ADD_MODULE(
+    [QtOpenGL],
+    [QApplication QGLWidget],
+    [_AX_HAVE_QT_GUI_PROGRAM([QGLWidget])],
+    [$X_CFLAGS $GL_CFLAGS],
+    [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $GL_LIBS],
+    [
+      AC_DEFINE([HAVE_QT_OPENGL],,[define if the QtOpenGL module is available])
+      AC_MSG_RESULT([yes])
+    ], [
     AC_MSG_ERROR([no])
   ])
 ])
 
-dnl Ensure the specified module is available. If so, QT_LIBS and QT_CXXFLAGS
-dnl will be updated with the required dependencies.
-dnl
-dnl The first argument must be the name of the module.
-dnl
-dnl The second and third arguments consist of shell script that will be run on
-dnl success or failure, respectively,  of this test.
-AC_DEFUN([_AX_HAVE_QT_MODULE], [
-  ax_qt_added_module=$1
-  ax_qt_module_include_dir=
+AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
+           ax_qt_module=$1
+   ax_qt_module_headers=$2
+      ax_qt_module_body=$3
+  ax_qt_module_CXXFLAGS=$4
+      ax_qt_module_LIBS=$5
+  # Action if successful 6
+  # Action if failed     7
 
-  # Find the include directory first
-  ax_qt_header_name=
-  ax_qt_module_CXXFLAGS=
-  case "$ax_qt_added_module" in
-    qt-mt)
-      ax_qt_header_name="qglobal.h"
-      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-DQT_THREAD_SUPPORT])
-      ;;
-    qt*)
-      ax_qt_header_name="qglobal.h"
-      ;;
-    QtCore|core)
-      ax_qt_added_module="QtCore"
-      ax_qt_header_name="QCoreApplcation"
-      ;;
-    QtGui|gui)
-      ax_qt_added_module="QtGui"
-      ax_qt_header_name="QApplication"
-      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [$X_CFLAGS])
-      _AX_HAVE_QT_INSERT([ax_qt_module_LIBS], [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS])
-      ;;
-    QtOpenGL|QtOpenGl|opengl)
-      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [$X_CFLAGS $GL_CFLAGS])
-      _AX_HAVE_QT_INSERT([ax_qt_module_LIBS], [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $GL_LIBS])
-      ax_qt_added_module="QtOpenGL"
-      ax_qt_header_name="QGLWidget"
-      ;;
-    QtSql|sql|SQL)
-      ax_qt_added_module="QtSql"
-      ax_qt_header_name="QSqlDatabase"
-      ;;
-    QtXml|xml|XML)
-      ax_qt_added_module="QtXml"
-      ax_qt_header_name="QXmlSimpleReader"
-      ;;
-    QtTest|test*)
-      ax_qt_added_module="QtTest"
-      ax_qt_header_name="QTestEventList"
-      ;;
-    QtNetwork|net*)
-      ax_qt_added_module="QtNetwork"
-      ax_qt_header_name="QLocalSocket"
-      ;;
-  esac;
-
-  _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
-    for ax_dir in $ax_dir_root $ax_dir_root/include; do
-      if test -r "$ax_dir/$ax_qt_header_name"; then
-        ax_qt_module_include_dir="$ax_dir"
+  # Search for specified headers in relevant directories
+  for header in $ax_qt_module_headers; do
+    _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
+      for ax_dir in $ax_dir_root $ax_dir_root/include; do
+        if test -r "$ax_dir/$ax_qt_header_name"; then
+          ax_qt_module_include_dir="$ax_dir"
+          break;
+        fi;
+      done;
+      if test x"$ax_qt_module_include_dir" != x; then
         break;
-      fi;
-    done;
+      fi
+    ])
     if test x"$ax_qt_module_include_dir" != x; then
-      break;
+      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_module_include_dir"])
     fi
-  ])
-  if test x"$ax_qt_include_dir" != x; then
-    _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_include_dir"])
-  fi
-  if test x"$ax_qt_module_include_dir" != x; then
-    _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_module_include_dir"])
-  fi
+  done;
+
+  # Construct a prologue from the specified headers
+  ax_qt_module_prologue=
+  for ax_included in $ax_qt_module_headers; do
+    ax_qt_module_prologue="$ax_qt_module_prologue
+      #include <$ax_included>"
+  done
 
   # Attempt to compile and link a test program using this module.
 
   # (1/3) Try building without any extra options
-  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,
-    ["$QT_LIBS $ax_qt_module_LIBS"],
-    ["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
-      _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-      _AX_HAVE_QT_INSERT([QT_LIBS], [$ax_qt_module_LIBS])
-      $2
+  _AX_HAVE_QT_COMPILE(
+    [$ax_qt_module_prologue],
+    [$ax_qt_module_body],
+    ["$ax_qt_module_CXXFLAGS"],
+    ["$ax_qt_module_LIBS"], [
+      $6
       :
   ],[
-    # (2/3) Try building with a -lmodule linker flag
-    _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,
-    ["$QT_LIBS $ax_qt_module_LIBS -l$ax_qt_added_module"],
-    ["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
-      _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-      _AX_HAVE_QT_INSERT([QT_LIBS], [$ax_qt_module_LIBS -l$ax_qt_added_module])
-      $2
+    # (2/3) Try building with the library specified (-lmodule)
+    _AX_HAVE_QT_COMPILE(
+    [$ax_qt_module_prologue],
+    [$ax_qt_module_body],
+    [$ax_qt_module_CXXFLAGS],
+    ["$ax_qt_module_LIBS -l$ax_qt_module"], [
+      $6
       :
   ],[
     # (3/3) Try building using an explicit library path (-Lpath -lmodule)
     ax_found_a_good_dir=no
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
-      if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
-        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,
-          ["$QT_LIBS $ax_qt_module_LIBS -L$ax_dir -l$ax_qt_added_module"],
-          ["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"],[
-          _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-          _AX_HAVE_QT_INSERT([QT_LIBS], [$ax_qt_module_LIBS -L$ax_dir -l$ax_qt_added_module])
-          ax_found_a_good_dir=yes
-          $2
-          break;
-        ])
+      if ls $ax_dir/lib$ax_qt_module* >/dev/null 2>/dev/null; then
+        _AX_HAVE_QT_COMPILE(
+          [$ax_qt_module_prologue],
+          [$ax_qt_module_body],
+          [$ax_qt_module_CXXFLAGS],
+          ["$ax_qt_module_LIBS -L$ax_dir -l$ax_qt_module"], [
+            ax_found_a_good_dir=yes
+            $6
+            break;
+          ]
+        )
       fi
     ])
     if test x"$ax_found_a_good_dir" != xyes; then
       # No luck adding this module
-      $3
+      $7
       :
     fi
-  ]) ])
-])dnl _AX_HAVE_QT_MODULE
+    dnl End of (3/3)
+  ]) dnl End of (2/3)
+  ]) dnl End of (1/3)
+]) dnl _AX_HAVE_QT_ADD_MODULE
 
-dnl Check for the specified Qt module.
-dnl
-dnl The second and third arguments will specify and LIBS and CXXFLAGS,
-dnl respectively, that will be used during testing.
-dnl
-dnl The fourth and fifth arguments consist of shell script that will be
-dnl run on success or failure of this test.
-AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
-  ax_save_LIBS="$LIBS"
+AC_DEFUN([_AX_HAVE_QT_COMPILE], [
+  ax_qt_compile_prologue=$1
+      ax_qt_compile_body=$2
+  ax_qt_compile_CXXFLAGS=$3
+      ax_qt_compile_LIBS=$4
+  # Action if successful  5
+  # Action if failed      6
+
+  AC_LANG_PUSH([C++])
+
   ax_save_CXXFLAGS="$CXXFLAGS"
-  ax_qt_module_lib=$1
-  ax_qt_module_LIBS=$2
-  ax_qt_module_CXXFLAGS=$3
-  CXXFLAGS=
-  LIBS=
-  qt_direct_test_header=
-  qt_direct_test_main=
-  case "$ax_qt_module_lib" in
-    qt-mt)
-      qt_direct_test_header=QApplication
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QApplication app (argc,argv);
-      "
-      ;;
-    qt|qt-gl)
-      qt_direct_test_header=QApplication
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QApplication app (argc,argv);
-      "
-      ;;
-    QtCore)
-      qt_direct_test_header=QCoreApplication
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QCoreApplication app (argc,argv);
-      "
-      ;;
-    QtGui)
-      qt_direct_test_header=QApplication
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QApplication app (argc,argv);
-      "
-      ;;
-    QtOpenGL)
-      qt_direct_test_header="QApplication QGLWidget"
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QApplication app (argc,argv);
-        QGLWidget widget;
-      "
-      ;;
-    QtXml)
-      qt_direct_test_header="QCoreApplication QXmlSimpleReader"
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QCoreApplication app (argc,argv);
-        QXmlSimpleReader reader;
-      "
-      ;;
-    QtTest)
-      qt_direct_test_header="QCoreApplication QTestEventList"
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QCoreApplication app (argc,argv);
-        QTestEventList eventList;
-      "
-      ;;
-    QtSql)
-      qt_direct_test_header="QCoreApplication QSqlDatabase"
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QCoreApplication app (argc,argv);
-        QSqlDatabase db;
-      "
-      ;;
-    QtNetwork)
-      qt_direct_test_header="QCoreApplication QLocalSocket"
-      qt_direct_test_main="
-        int argc;
-        char ** argv;
-        QCoreApplication app (argc,argv);
-        QLocalSocket socket;
-      "
-      ;;
-  esac;
-  CXXFLAGS="$ax_qt_module_CXXFLAGS $CXXFLAGS"
-  LIBS="$ax_qt_module_LIBS -l$ax_qt_module_lib $LIBS"
-  ax_module_include_statement=
-  for ax_included in $qt_direct_test_header; do
-    ax_module_include_statement="$ax_module_include_statement
-      #include <$ax_included>"
-  done
-  if test x"$qt_direct_test_main" != x; then
-    AC_LANG_PUSH([C++])
-    AC_TRY_LINK([$ax_module_include_statement],
-      $qt_direct_test_main,
-    [
-      LIBS="$ax_save_LIBS"
-      CXXFLAGS="$ax_save_CXXFLAGS"
-      # Successfully linked our test code.
-      $4
-      :
-    ], [
-      LIBS="$ax_save_LIBS"
-      CXXFLAGS="$ax_save_CXXFLAGS"
-      $5
-      :
-    ])
-    AC_LANG_POP([C++])
-  fi;
+      ax_save_LIBS="$LIBS"
+
+  CXXFLAGS="$QT_CXXFLAGS $ax_qt_compile_CXXFLAGS"
+      LIBS="$QT_LIBS     $ax_qt_compile_LIBS"
+
+  AC_TRY_LINK(
+    [$ax_qt_module_prologue],
+    [$ax_qt_module_body],
+  [
+    CXXFLAGS="$ax_save_CXXFLAGS"
+        LIBS="$ax_save_LIBS"
+
+    # Successfully linked our test code, so insert it into our
+    # global arguments and call the client-provided code
+
+    _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_compile_CXXFLAGS])
+    _AX_HAVE_QT_INSERT([QT_LIBS],     [$ax_qt_compile_LIBS])
+
+    $5
+  ], [
+    # Failed to link the test program, so do nothing except call
+    # the client-provided code
+
+    CXXFLAGS="$ax_save_CXXFLAGS"
+        LIBS="$ax_save_LIBS"
+
+    $6
+  ])
+
+  AC_LANG_POP([C++])
 ])
 
 dnl Check if the specified directory is a traditional Qt directory, as provided
@@ -822,9 +755,9 @@ dnl
 dnl The third parameter will, if "yes", force the variable to be added to the front, rather
 dnl than the back of the specified variable.
 AC_DEFUN([_AX_HAVE_QT_INSERT], [
-  ax_target_variable = $1
-  # To be added      =  2
-  ax_insert_to_front = $3
+  ax_target_variable=$1
+  # To be added       2
+  ax_insert_to_front=$3
 
   # Values to insert
   ax_inserted_variable_list=
@@ -851,3 +784,19 @@ AC_DEFUN([_AX_HAVE_QT_INSERT], [
     eval "$ax_target_variable=\""'$'"$ax_target_variable $ax_inserted_variable_list\""
   fi;
 ])dnl _AX_HAVE_QT_INSERT
+
+dnl Simple macro to output a non-GUI test program
+AC_DEFUN([_AX_HAVE_QT_CORE_PROGRAM], [
+  int argc;
+  char **argv;
+  QCoreApplication app(argc,argv);
+  $1 instance;
+])dnl _AX_HAVE_QT_BASIC_PROGRAM
+
+dnl Simple macro to output a GUI-based test program
+AC_DEFUN([_AX_HAVE_QT_GUI_PROGRAM], [
+  int argc;
+  char ** argv;
+  QApplication app(argc,argv);
+  $1 instance;
+])dnl _AX_HAVE_QT_GUI_PROGRAM
