@@ -475,10 +475,10 @@ AC_DEFUN([_AX_HAVE_QT_MODULE], [
     fi
   ])
   if test x"$ax_qt_include_dir" != x; then
-    ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -I$ax_qt_include_dir";
+    _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_include_dir"])
   fi
   if test x"$ax_qt_module_include_dir" != x; then
-    ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -I$ax_qt_module_include_dir";
+    _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_module_include_dir"])
   fi
   # First, attempt without any explicit library path
   _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,[],["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
