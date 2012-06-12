@@ -355,7 +355,7 @@ AC_DEFUN([AX_HAVE_QT_TEST], [
   _AX_HAVE_QT_ADD_MODULE(
     [QtTest],
     [QCoreApplication QTestEventList],
-    [_AX_HAVE_QT_BASIC_PROGRAM([QTestEventList])],
+    _AX_HAVE_QT_CORE_PROGRAM([QTestEventList]),
     , dnl CXXFLAGS
     , dnl LIBS
     [
@@ -372,7 +372,7 @@ AC_DEFUN([AX_HAVE_QT_SQL], [
   _AX_HAVE_QT_ADD_MODULE(
     [QtSql],
     [QCoreApplication QSqlDatabase],
-    [_AX_HAVE_QT_BASIC_PROGRAM([QSqlDatabase])],
+    _AX_HAVE_QT_CORE_PROGRAM([QSqlDatabase]),
     , dnl CXXFLAGS
     , dnl LIBS
     [
@@ -389,7 +389,7 @@ AC_DEFUN([AX_HAVE_QT_NETWORK], [
   _AX_HAVE_QT_ADD_MODULE(
     [QtNetwork],
     [QCoreApplication QLocalSocket],
-    [_AX_HAVE_QT_BASIC_PROGRAM([QLocalSocket])],
+    _AX_HAVE_QT_CORE_PROGRAM([QLocalSocket]),
     , dnl CXXFLAGS
     , dnl LIBS
     [
@@ -406,7 +406,7 @@ AC_DEFUN([AX_HAVE_QT_XML], [
   _AX_HAVE_QT_ADD_MODULE(
     [QtXml],
     [QCoreApplication QXmlSimpleReader],
-    [_AX_HAVE_QT_BASIC_PROGRAM([QXmlSimpleReader])],
+    _AX_HAVE_QT_CORE_PROGRAM([QXmlSimpleReader]),
     , dnl CXXFLAGS
     , dnl LIBS
     [
@@ -426,7 +426,7 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
   _AX_HAVE_QT_ADD_MODULE(
     [QtOpenGL],
     [QApplication QGLWidget],
-    [_AX_HAVE_QT_GUI_PROGRAM([QGLWidget])],
+    _AX_HAVE_QT_GUI_PROGRAM([QGLWidget]),
     [$X_CFLAGS $GL_CFLAGS],
     [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $GL_LIBS],
     [
@@ -855,7 +855,7 @@ AC_DEFUN([_AX_HAVE_QT_CORE_PROGRAM], [
   char **argv;
   QCoreApplication app(argc,argv);
   $1 instance;
-])dnl _AX_HAVE_QT_BASIC_PROGRAM
+])dnl _AX_HAVE_QT_CORE_PROGRAM
 
 dnl Simple macro to output a GUI-based test program
 AC_DEFUN([_AX_HAVE_QT_GUI_PROGRAM], [
