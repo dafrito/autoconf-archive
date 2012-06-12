@@ -550,7 +550,80 @@ AC_DEFUN([_AX_HAVE_QT_MODULE], [
     fi
   ]) ])
 ])dnl _AX_HAVE_QT_MODULE
+
+AC_DEFUN([AX_HAVE_QT_CORE], [
+  AC_MSG_CHECKING([QtCore])
+  _AX_HAVE_QT_MODULE([QtCore], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
   ])
+])
+
+AC_DEFUN([AX_HAVE_QT_GUI], [
+  AC_MSG_CHECKING([QtGui])
+  AC_REQUIRE([AC_PATH_X])
+  AC_REQUIRE([AC_PATH_XTRA])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtGui], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_TEST], [
+  AC_MSG_CHECKING([QtTest])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtTest], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_SQL], [
+  AC_MSG_CHECKING([QtSql])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtSql], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_NETWORK], [
+  AC_MSG_CHECKING([QtNetwork])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtNetwork], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_XML], [
+  AC_MSG_CHECKING([QtXml])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtXml], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_OPENGL], [
+  AC_MSG_CHECKING([QtOpenGL])
+  AC_REQUIRE([AC_PATH_X])
+  AC_REQUIRE([AC_PATH_XTRA])
+  AC_REQUIRE([AX_HAVE_OPENGL])
+  AC_REQUIRE([AX_HAVE_QT_GUI])
+  _AX_HAVE_QT_MODULE([QtOpenGL], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
 
 dnl Check for the specified Qt module.
 dnl
