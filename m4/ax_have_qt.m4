@@ -510,7 +510,8 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
   # Action if failed     7
 
   # Search for specified headers in relevant directories
-  for header in $ax_qt_module_headers; do
+  for ax_qt_header_name in $ax_qt_module_headers; do
+    ax_qt_module_include_dir=
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
       for ax_dir in $ax_dir_root $ax_dir_root/include; do
         if test -r "$ax_dir/$ax_qt_header_name"; then
