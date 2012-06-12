@@ -449,10 +449,14 @@ AC_DEFUN([AX_HAVE_QT_MOC], [
     if test -x "$ax_moc_candidate"; then
       _AX_HAVE_QT_CHECK_MOC(["$ax_moc_candidate"], [
         QT_MOC=$ax_moc_candidate
+        AC_MSG_RESULT([yes])
         break
       ])
     fi
   done;
+  if test x"$QT_MOC" = x; then
+    AC_MSG_ERROR([no])
+  fi
   AC_SUBST(QT_MOC)
 ])
 
