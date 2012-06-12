@@ -309,6 +309,7 @@ AC_DEFUN([AX_HAVE_QT_CORE], [
   AC_MSG_CHECKING([QtCore])
   _AX_HAVE_QT_MODULE([QtCore], [
     AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_QT_CORE],,[define if the QtCore module is available])
   ], [
     AC_MSG_ERROR([no])
   ])
@@ -321,6 +322,7 @@ AC_DEFUN([AX_HAVE_QT_GUI], [
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_MODULE([QtGui], [
     AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_QT_GUI],,[define if the QtGui module is available])
   ], [
     AC_MSG_ERROR([no])
   ])
@@ -329,8 +331,10 @@ AC_DEFUN([AX_HAVE_QT_GUI], [
 AC_DEFUN([AX_HAVE_QT_TEST], [
   AC_MSG_CHECKING([QtTest])
   AC_REQUIRE([AX_HAVE_QT_CORE])
+  AC_REQUIRE([AX_HAVE_QT_MOC])
   _AX_HAVE_QT_MODULE([QtTest], [
     AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_QT_TEST],,[define if the QtTest module is available])
   ], [
     AC_MSG_ERROR([no])
   ])
@@ -341,6 +345,7 @@ AC_DEFUN([AX_HAVE_QT_SQL], [
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_MODULE([QtSql], [
     AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_QT_SQL],,[define if the QtSql module is available])
   ], [
     AC_MSG_ERROR([no])
   ])
@@ -351,6 +356,7 @@ AC_DEFUN([AX_HAVE_QT_NETWORK], [
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_MODULE([QtNetwork], [
     AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_QT_NETWORK],,[define if the QtNetwork module is available])
   ], [
     AC_MSG_ERROR([no])
   ])
@@ -360,6 +366,7 @@ AC_DEFUN([AX_HAVE_QT_XML], [
   AC_MSG_CHECKING([QtXml])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_MODULE([QtXml], [
+    AC_DEFINE([HAVE_QT_XML],,[define if the QtXml module is available])
     AC_MSG_RESULT([yes])
   ], [
     AC_MSG_ERROR([no])
@@ -373,6 +380,7 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
   AC_REQUIRE([AX_HAVE_OPENGL])
   AC_REQUIRE([AX_HAVE_QT_GUI])
   _AX_HAVE_QT_MODULE([QtOpenGL], [
+    AC_DEFINE([HAVE_QT_OPENGL],,[define if the QtOpenGL module is available])
     AC_MSG_RESULT([yes])
   ], [
     AC_MSG_ERROR([no])
