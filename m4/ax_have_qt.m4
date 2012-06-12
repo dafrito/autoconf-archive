@@ -503,7 +503,7 @@ EOF
 AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
            ax_qt_module=$1
    ax_qt_module_headers=$2
-      ax_qt_module_body=$3
+  # Program body         3
   ax_qt_module_CXXFLAGS=$4
       ax_qt_module_LIBS=$5
   # Action if successful 6
@@ -539,7 +539,7 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
   # (1/3) Try building without any extra options
   _AX_HAVE_QT_COMPILE(
     [$ax_qt_module_prologue],
-    [$ax_qt_module_body],
+    [$3],
     ["$ax_qt_module_CXXFLAGS"],
     ["$ax_qt_module_LIBS"], [
       $6
@@ -548,7 +548,7 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
     # (2/3) Try building with the library specified (-lmodule)
     _AX_HAVE_QT_COMPILE(
     [$ax_qt_module_prologue],
-    [$ax_qt_module_body],
+    [$3],
     [$ax_qt_module_CXXFLAGS],
     ["$ax_qt_module_LIBS -l$ax_qt_module"], [
       $6
@@ -560,7 +560,7 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
       if ls $ax_dir/lib$ax_qt_module* >/dev/null 2>/dev/null; then
         _AX_HAVE_QT_COMPILE(
           [$ax_qt_module_prologue],
-          [$ax_qt_module_body],
+          [$3],
           [$ax_qt_module_CXXFLAGS],
           ["$ax_qt_module_LIBS -L$ax_dir -l$ax_qt_module"], [
             ax_found_a_good_dir=yes
@@ -582,7 +582,7 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
 
 AC_DEFUN([_AX_HAVE_QT_COMPILE], [
   ax_qt_compile_prologue=$1
-      ax_qt_compile_body=$2
+  # program body          2
   ax_qt_compile_CXXFLAGS=$3
       ax_qt_compile_LIBS=$4
   # Action if successful  5
@@ -598,7 +598,7 @@ AC_DEFUN([_AX_HAVE_QT_COMPILE], [
 
   AC_TRY_LINK(
     [$ax_qt_module_prologue],
-    [$ax_qt_module_body],
+    [$2],
   [
     CXXFLAGS="$ax_save_CXXFLAGS"
         LIBS="$ax_save_LIBS"
