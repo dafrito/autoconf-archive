@@ -822,9 +822,14 @@ dnl
 dnl The third parameter will, if "yes", force the variable to be added to the front, rather
 dnl than the back of the specified variable.
 AC_DEFUN([_AX_HAVE_QT_INSERT], [
-  ax_target_variable=$1
-  ax_insert_to_front=$3
+  ax_target_variable = $1
+  # To be added      =  2
+  ax_insert_to_front = $3
+
+  # Values to insert
   ax_inserted_variable_list=
+
+  # Ensure each value is not already present in the list
   for ax_one_inserted_value in $2; do
     ax_do_insertion=yes
     for ax_this_value in $$1; do
@@ -838,6 +843,8 @@ AC_DEFUN([_AX_HAVE_QT_INSERT], [
       ax_inserted_variable_list="$ax_inserted_variable_list $ax_one_inserted_value"
     fi
   done
+
+  # Finally, insert values into the list
   if test x"$ax_insert_to_front" = xyes; then
     eval "$ax_target_variable=\"$ax_inserted_variable_list "'$'"$ax_target_variable\""
   else
