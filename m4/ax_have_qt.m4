@@ -447,7 +447,7 @@ AC_DEFUN([AX_HAVE_QT_MOC], [
     `which moc-qt4`;
   do
     if test -x "$ax_moc_candidate"; then
-      _AX_HAVE_QT_CHECK_MOC(["$QT_DIR/bin/moc"], [
+      _AX_HAVE_QT_CHECK_MOC(["$ax_moc_candidate"], [
         QT_MOC=$ax_moc_candidate
         break
       ])
