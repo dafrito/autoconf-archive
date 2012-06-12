@@ -509,7 +509,7 @@ EOF
 
 AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
            ax_qt_module=$1
-   ax_qt_module_headers=$2
+   ax_qt_module_headers="$2"
   # Program body         3
   ax_qt_module_CXXFLAGS=$4
       ax_qt_module_LIBS=$5
@@ -606,7 +606,7 @@ AC_DEFUN([_AX_HAVE_QT_COMPILE], [
 
   AC_TRY_LINK(
     [$ax_qt_module_prologue],
-    [$2],
+    $2,
   [
     CXXFLAGS="$ax_save_CXXFLAGS"
         LIBS="$ax_save_LIBS"
