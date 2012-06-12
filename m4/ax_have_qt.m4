@@ -94,8 +94,6 @@ AU_ALIAS([BNV_HAVE_QT], [AX_HAVE_QT])
 AC_DEFUN([AX_HAVE_QT],
 [
   AC_REQUIRE([AC_PROG_CXX])
-  AC_REQUIRE([AC_PATH_X])
-  AC_REQUIRE([AC_PATH_XTRA])
 
   AC_MSG_CHECKING(for Qt)
 
@@ -187,7 +185,7 @@ AC_DEFUN([AX_HAVE_QT],
                            sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
             fi
             # This blows away any previous QT_LIBS setting.
-            QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
+            QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib"
           else
             if test x"$ax_qt_lib" = xNO; then
               ax_qt_lib=qt
@@ -446,22 +444,52 @@ dnl success or failure, respectively,  of this test.
 AC_DEFUN([_AX_HAVE_QT_MODULE], [
   ax_qt_added_module=$1
   ax_qt_module_include_dir=
+
   # Find the include directory first
   ax_qt_header_name=
   ax_qt_module_CXXFLAGS=
   case "$ax_qt_added_module" in
     qt-mt)
       ax_qt_header_name="qglobal.h"
-      ax_qt_module_CXXFLAGS="$ax_qt_module_CXXFLAGS -DQT_THREAD_SUPPORT" ;;
-    qt*) ax_qt_header_name="qglobal.h" ;;
-    QtCore) ax_qt_header_name="QCoreApplcation" ;;
-    QtGui) ax_qt_header_name="QApplication" ;;
-    QtOpenGL) ax_qt_header_name="QGLWidget" ;;
-    QtSql) ax_qt_header_name="QSqlDatabase" ;;
-    QtXml) ax_qt_header_name="QXmlSimpleReader" ;;
-    QtTest) ax_qt_header_name="QTestEventList" ;;
-    QtNetwork) ax_qt_header_name="QLocalSocket" ;;
+      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-DQT_THREAD_SUPPORT])
+      ;;
+    qt*)
+      ax_qt_header_name="qglobal.h"
+      ;;
+    QtCore|core)
+      ax_qt_added_module="QtCore"
+      ax_qt_header_name="QCoreApplcation"
+      ;;
+    QtGui|gui)
+      ax_qt_added_module="QtGui"
+      ax_qt_header_name="QApplication"
+      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [$X_CFLAGS])
+      _AX_HAVE_QT_INSERT([ax_qt_module_LIBS], [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS])
+      ;;
+    QtOpenGL|QtOpenGl|opengl)
+      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [$X_CFLAGS $GL_CFLAGS])
+      _AX_HAVE_QT_INSERT([ax_qt_module_LIBS], [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $GL_LIBS])
+      ax_qt_added_module="QtOpenGL"
+      ax_qt_header_name="QGLWidget"
+      ;;
+    QtSql|sql|SQL)
+      ax_qt_added_module="QtSql"
+      ax_qt_header_name="QSqlDatabase"
+      ;;
+    QtXml|xml|XML)
+      ax_qt_added_module="QtXml"
+      ax_qt_header_name="QXmlSimpleReader"
+      ;;
+    QtTest|test*)
+      ax_qt_added_module="QtTest"
+      ax_qt_header_name="QTestEventList"
+      ;;
+    QtNetwork|net*)
+      ax_qt_added_module="QtNetwork"
+      ax_qt_header_name="QLocalSocket"
+      ;;
   esac;
+
   _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
     for ax_dir in $ax_dir_root $ax_dir_root/include; do
       if test -r "$ax_dir/$ax_qt_header_name"; then
@@ -489,9 +517,11 @@ AC_DEFUN([_AX_HAVE_QT_MODULE], [
     ax_found_a_good_dir=no
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
       if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
-        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,["-L$ax_dir"],["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"],[
+        _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,
+          ["$QT_LIBS $ax_qt_module_LIBS -L$ax_dir -l$ax_qt_added_module"],
+          ["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"],[
           _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-          _AX_HAVE_QT_INSERT([QT_LIBS], [-L$ax_dir -l$ax_qt_added_module])
+          _AX_HAVE_QT_INSERT([QT_LIBS], [$ax_qt_module_LIBS -L$ax_dir -l$ax_qt_added_module])
           ax_found_a_good_dir=yes
           $2
           break;
@@ -525,8 +555,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
   qt_direct_test_main=
   case "$ax_qt_module_lib" in
     qt-mt)
-      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
-      CXXFLAGS="$CXXFLAGS -DQT_THREAD_SUPPORT"
       qt_direct_test_header=QApplication
       qt_direct_test_main="
         int argc;
@@ -535,7 +563,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     qt|qt-gl)
-      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
       qt_direct_test_header=QApplication
       qt_direct_test_main="
         int argc;
@@ -552,7 +579,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtGui)
-      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS -lQtCore"
       qt_direct_test_header=QApplication
       qt_direct_test_main="
         int argc;
@@ -561,7 +587,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtOpenGL)
-      LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS -lQtCore -lQtGui"
       qt_direct_test_header="QApplication QGLWidget"
       qt_direct_test_main="
         int argc;
@@ -571,7 +596,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtXml)
-      LIBS="-lQtCore"
       qt_direct_test_header="QCoreApplication QXmlSimpleReader"
       qt_direct_test_main="
         int argc;
@@ -581,7 +605,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtTest)
-      LIBS="-lQtCore"
       qt_direct_test_header="QCoreApplication QTestEventList"
       qt_direct_test_main="
         int argc;
@@ -591,7 +614,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtSql)
-      LIBS="-lQtCore"
       qt_direct_test_header="QCoreApplication QSqlDatabase"
       qt_direct_test_main="
         int argc;
@@ -601,7 +623,6 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
       "
       ;;
     QtNetwork)
-      LIBS="-lQtCore"
       qt_direct_test_header="QCoreApplication QLocalSocket"
       qt_direct_test_main="
         int argc;
