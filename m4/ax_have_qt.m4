@@ -507,13 +507,28 @@ AC_DEFUN([_AX_HAVE_QT_MODULE], [
   if test x"$ax_qt_module_include_dir" != x; then
     _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_module_include_dir"])
   fi
-  # First, attempt without any explicit library path
-  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,[],["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
-    _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
-    _AX_HAVE_QT_INSERT([QT_LIBS], [-l$ax_qt_added_module])
-    $2
-    :
+
+  # Attempt to compile and link a test program using this module.
+
+  # (1/3) Try building without any extra options
+  _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,
+    ["$QT_LIBS $ax_qt_module_LIBS"],
+    ["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
+      _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
+      _AX_HAVE_QT_INSERT([QT_LIBS], [$ax_qt_module_LIBS])
+      $2
+      :
   ],[
+    # (2/3) Try building with a -lmodule linker flag
+    _AX_HAVE_QT_CHECK_MODULE($ax_qt_added_module,
+    ["$QT_LIBS $ax_qt_module_LIBS -l$ax_qt_added_module"],
+    ["$QT_CXXFLAGS $ax_qt_module_CXXFLAGS"], [
+      _AX_HAVE_QT_INSERT([QT_CXXFLAGS], [$ax_qt_module_CXXFLAGS])
+      _AX_HAVE_QT_INSERT([QT_LIBS], [$ax_qt_module_LIBS -l$ax_qt_added_module])
+      $2
+      :
+  ],[
+    # (3/3) Try building using an explicit library path (-Lpath -lmodule)
     ax_found_a_good_dir=no
     _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
       if ls $ax_dir/lib$ax_qt_added_module* >/dev/null 2>/dev/null; then
@@ -533,8 +548,9 @@ AC_DEFUN([_AX_HAVE_QT_MODULE], [
       $3
       :
     fi
+  ]) ])
+])dnl _AX_HAVE_QT_MODULE
   ])
-])dnl AX_HAVE_QT_MODULE
 
 dnl Check for the specified Qt module.
 dnl
