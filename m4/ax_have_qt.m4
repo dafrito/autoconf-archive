@@ -193,7 +193,7 @@ AC_DEFUN([AX_HAVE_QT],
               ax_qt_lib=qt
             fi
             for ax_possible_module in QtGui QtCore qt qt-mt qt-gl; do
-              AX_HAVE_QT_MODULE($ax_possible_module,[
+              _AX_HAVE_QT_MODULE($ax_possible_module,[
                 ax_qt_lib=$ax_possible_module
                 ax_qt_lib_dir=
               ],[
@@ -444,7 +444,7 @@ dnl The first argument must be the name of the module.
 dnl
 dnl The second and third arguments consist of shell script that will be run on
 dnl success or failure, respectively,  of this test.
-AC_DEFUN([AX_HAVE_QT_MODULE], [
+AC_DEFUN([_AX_HAVE_QT_MODULE], [
   ax_qt_added_module=$1
   ax_qt_module_include_dir=
   # Find the include directory first
