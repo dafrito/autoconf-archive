@@ -7,6 +7,20 @@
 #   AX_HAVE_QT [--with-Qt-dir=DIR] [--with-Qt-lib-dir=DIR] [--with-Qt-lib=LIB]
 #   AX_HAVE_QT [--with-Qt-include-dir=DIR] [--with-Qt-bin-dir=DIR] [--with-Qt-lib-dir=DIR] [--with-Qt-lib=LIB]
 #
+#   AX_HAVE_QT_CORE
+#   AX_HAVE_QT_GUI
+#   AX_HAVE_QT_NETWORK
+#   AX_HAVE_QT_OPENGL
+#   AX_HAVE_QT_SQL
+#   AX_HAVE_QT_TEST
+#   AX_HAVE_QT_XML
+#
+#   The following macros are not yet implemented:
+#   AX_HAVE_QT_MOC
+#   AX_HAVE_QT_UIC
+#   AX_HAVE_QT_LRELEASE
+#   AX_HAVE_QT_LUPDATE
+#
 # DESCRIPTION
 #
 #   Searches common directories for Qt include files, libraries and Qt
