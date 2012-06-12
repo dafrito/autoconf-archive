@@ -441,6 +441,7 @@ AC_DEFUN([AX_HAVE_QT_MOC], [
   AC_MSG_CHECKING([Qt moc])
   AC_REQUIRE([AX_HAVE_QT_CORE])
 
+  QT_MOC=
   for ax_moc_candidate in \
     "$QT_DIR/bin/moc" \
     `which moc` \
