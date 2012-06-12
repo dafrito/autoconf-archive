@@ -483,7 +483,7 @@ signals:
 };
 EOF
 
-  cat >ax_test_moc.$ax_ext <<EOF
+  cat >ax_test_moc.cpp <<EOF
 #include "ax_test_moc.h"
 #include <QApplication>
 
@@ -495,7 +495,9 @@ int main (int argc, char **argv)
 }
 EOF
 
-  AC_TRY_EVAL([$ax_qt_moc ax_test_moc.h -o moc_ax_test_moc.$ax_ext >dev/null 2>/dev/null])
+  ax_try="$ax_qt_moc ax_test_moc.h -o moc_ax_test_moc.cpp >/dev/null 2>/dev/null"
+  AC_TRY_EVAL(ax_try)
+  rm -f ax_test_moc.h moc_ax_test_moc.cpp ax_test_moc.cpp
   if test x"$ac_status" = x0; then
     $2
     :
