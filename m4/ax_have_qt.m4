@@ -437,6 +437,69 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
   ])
 ])
 
+AC_DEFUN([AX_HAVE_QT_MOC], [
+  AC_MSG_CHECKING([Qt moc])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+
+  for ax_moc_candidate in \
+    "$QT_DIR/bin/moc" \
+    `which moc` \
+    `which moc-qt4`;
+  do
+    if test -x "$ax_moc_candidate"; then
+      _AX_HAVE_QT_CHECK_MOC(["$QT_DIR/bin/moc"], [
+        QT_MOC=$ax_moc_candidate
+        break
+      ])
+    fi
+  done;
+  AC_SUBST(QT_MOC)
+])
+
+AC_DEFUN([_AX_HAVE_QT_CHECK_MOC], [
+  ax_qt_moc=$1
+
+  cat >ax_test_moc.h <<EOF
+#include <QObject>
+
+class Test : public QObject
+{
+  Q_OBJECT
+
+public:
+  Test() {}
+  ~Test() {}
+
+public slots:
+  void receive() {}
+
+signals:
+  void send();
+};
+EOF
+
+  cat >ax_test_moc.$ax_ext <<EOF
+#include "ax_test_moc.h"
+#include <QApplication>
+
+int main (int argc, char **argv)
+{
+  QApplication app(argc, argv);
+  Test t;
+  QObject::connect( &t, SIGNAL(send()), &t, SLOT(receive()) );
+}
+EOF
+
+  AC_TRY_EVAL([$ax_qt_moc ax_test_moc.h -o moc_ax_test_moc.$ax_ext >dev/null 2>/dev/null])
+  if test x"$ac_status" = x0; then
+    $2
+    :
+  else
+    $3
+    :
+  fi;
+])
+
 AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
            ax_qt_module=$1
    ax_qt_module_headers=$2
