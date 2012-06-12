@@ -290,149 +290,79 @@ AC_DEFUN([AX_HAVE_QT],
   fi
 ])
 
-dnl Iterate over a set of common directories, executing specified shell script for each entry.
-dnl
-dnl The first argument specifies the variable name of a given directory. This name should be used
-dnl in the specified shell script.
-dnl
-dnl The second argument consists of shell script that will be executed for each entry. If the shell
-dnl script calls "break", then iteration will immediately stop.
-dnl
-dnl The third argument consists of any extra directories that will be iterated.
-AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
-  for ax_for_each_dir_root in $3 \
-    "${QTDIR}" \
-    /lib64 \
-    /lib \
-    /usr \
-    /usr/include \
-    /usr/lib64 \
-    /usr/lib \
-    /usr/local \
-    /opt \
-    /Developer;
-  do
-    for $1 in \
-      "$ax_for_each_dir_root" \
-      `ls -dr $ax_dir_root/qt* 2>/dev/null` \
-      `ls -dr $ax_dir_root/Qt* 2>/dev/null`;
-    do
-      ax_continue_flag=
-      $2
-      # Detect if we broke out of the for-loop using this flag
-      ax_continue_flag=yes
-    done
-    if test x"$ax_continue_flag" != xyes; then
-      break;
-    fi;
-  done
-])
-
-dnl Add a parameter to the specified variable.
-dnl
-dnl The first parameter is the name of the variable that will be modified.
-dnl The second parameter is the parameter that will be added. Multiple parameters
-dnl are allowed.
-dnl
-dnl The third parameter will, if "yes", force the variable to be added to the front, rather
-dnl than the back of the specified variable.
-AC_DEFUN([_AX_HAVE_QT_INSERT], [
-  ax_target_variable=$1
-  ax_insert_to_front=$3
-  ax_inserted_variable_list=
-  for ax_one_inserted_value in $2; do
-    ax_do_insertion=yes
-    for ax_this_value in $$1; do
-      if test x"$ax_this_value" = x"$ax_one_inserted_value"; then
-        # Value is already present, so no need to insert it again
-        ax_do_insertion=
-        break
-      fi
-    done
-    if test x"$ax_do_insertion" = xyes; then
-      ax_inserted_variable_list="$ax_inserted_variable_list $ax_one_inserted_value"
-    fi
-  done
-  if test x"$ax_insert_to_front" = xyes; then
-    eval "$ax_target_variable=\"$ax_inserted_variable_list "'$'"$ax_target_variable\""
-  else
-    eval "$ax_target_variable=\""'$'"$ax_target_variable $ax_inserted_variable_list\""
-  fi;
-])dnl _AX_HAVE_QT_INSERT
-
-dnl Check if the specified directory is a traditional Qt directory, as provided
-dnl by Trolltech.
-dnl
-dnl The first argument must be the path of the canonical Qt installation.
-dnl
-dnl The second and third arguments optionally specify any shell script that will be
-dnl run on the success or failure, respectively, of this test.
-AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
-  ax_qt_dir_candidate=$1
-  if (test -x $ax_qt_dir_candidate/bin/moc) &&
-     ((ls $ax_qt_dir_candidate/lib/libqt* > /dev/null 2>/dev/null) ||
-      (ls $ax_qt_dir_candidate/lib64/libqt* > /dev/null 2>/dev/null) ||
-      (ls $ax_qt_dir_candidate/lib/libQt* > /dev/null 2>/dev/null) ||
-      (ls $ax_qt_dir_candidate/lib64/libQt* > /dev/null 2>/dev/null)); then
-    :
-    $2
-  else
-    :
-    $3
-  fi;
-])
-
-dnl Force Autoconf to use the specified directory as the canonical Qt installation.
-dnl Where applicable, these contents will be preferred over external ones.
-AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
-  ax_qt_dir="$1"
-  _AX_HAVE_QT_CHECK_FOR_QTDIR($ax_qt_dir,,[
-    AC_MSG_WARN([Specified Qt directory is not actually a Qt directory])
+AC_DEFUN([AX_HAVE_QT_CORE], [
+  AC_MSG_CHECKING([QtCore])
+  _AX_HAVE_QT_MODULE([QtCore], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
   ])
-  have_qt=yes
-  ax_qt_include_dir="$ax_qt_dir/include"
-  ax_qt_bin_dir="$ax_qt_dir/bin"
-  ax_qt_lib_dir="$ax_qt_dir/lib"
-  if (test -d $ax_qt_dir/lib64); then
-    ax_qt_lib_dir="$ax_qt_dir/lib64"
-  else
-    ax_qt_lib_dir="$ax_qt_dir/lib"
-  fi
-  # Only search for the lib if the user did not define one already
-  if test x"$ax_qt_lib" = x; then
-    ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
-                 sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
-  fi
-  QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
 ])
 
-dnl Find the legacy include directory for Qt. While this is still used for modern
-dnl versions of Qt, it is preferable to include the module header directories
-dnl themselves.
-dnl
-dnl This macro sets the following variables:
-dnl   ax_qt_include_dir - the path believed to contain Qt's header files
-dnl
-AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
-  # The following header file is expected to define QT_VERSION.
-  qt_direct_test_header=qglobal.h
-  # Look for the header file in a standard set of common directories.
-  ax_prev_ver=0
-  _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
-    for ax_dir in $ax_dir_root $ax_dir_root/include; do
-      if test -r "$ax_dir/$qt_direct_test_header"; then
-        # Check if this directory contains a newer library than our
-        # previous candidate.
-        ax_this_ver=`sed -nre 's/^[ ]*#define[ ]+QT_VERSION[ ]+//p' \
-          $ax_dir/$qt_direct_test_header`
-        if expr $ax_this_ver '>' $ax_prev_ver > /dev/null; then
-          ax_qt_include_dir=$ax_dir
-          ax_prev_ver=$ax_this_ver
-        fi
-      fi
-    done
+AC_DEFUN([AX_HAVE_QT_GUI], [
+  AC_MSG_CHECKING([QtGui])
+  AC_REQUIRE([AC_PATH_X])
+  AC_REQUIRE([AC_PATH_XTRA])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtGui], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
   ])
-])dnl _AX_HAVE_QT_FIND_INCLUDE
+])
+
+AC_DEFUN([AX_HAVE_QT_TEST], [
+  AC_MSG_CHECKING([QtTest])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtTest], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_SQL], [
+  AC_MSG_CHECKING([QtSql])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtSql], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_NETWORK], [
+  AC_MSG_CHECKING([QtNetwork])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtNetwork], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_XML], [
+  AC_MSG_CHECKING([QtXml])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  _AX_HAVE_QT_MODULE([QtXml], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_OPENGL], [
+  AC_MSG_CHECKING([QtOpenGL])
+  AC_REQUIRE([AC_PATH_X])
+  AC_REQUIRE([AC_PATH_XTRA])
+  AC_REQUIRE([AX_HAVE_OPENGL])
+  AC_REQUIRE([AX_HAVE_QT_GUI])
+  _AX_HAVE_QT_MODULE([QtOpenGL], [
+    AC_MSG_RESULT([yes])
+  ], [
+    AC_MSG_ERROR([no])
+  ])
+])
 
 dnl Ensure the specified module is available. If so, QT_LIBS and QT_CXXFLAGS
 dnl will be updated with the required dependencies.
@@ -550,80 +480,6 @@ AC_DEFUN([_AX_HAVE_QT_MODULE], [
     fi
   ]) ])
 ])dnl _AX_HAVE_QT_MODULE
-
-AC_DEFUN([AX_HAVE_QT_CORE], [
-  AC_MSG_CHECKING([QtCore])
-  _AX_HAVE_QT_MODULE([QtCore], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
-
-AC_DEFUN([AX_HAVE_QT_GUI], [
-  AC_MSG_CHECKING([QtGui])
-  AC_REQUIRE([AC_PATH_X])
-  AC_REQUIRE([AC_PATH_XTRA])
-  AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtGui], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
-
-AC_DEFUN([AX_HAVE_QT_TEST], [
-  AC_MSG_CHECKING([QtTest])
-  AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtTest], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
-
-AC_DEFUN([AX_HAVE_QT_SQL], [
-  AC_MSG_CHECKING([QtSql])
-  AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtSql], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
-
-AC_DEFUN([AX_HAVE_QT_NETWORK], [
-  AC_MSG_CHECKING([QtNetwork])
-  AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtNetwork], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
-
-AC_DEFUN([AX_HAVE_QT_XML], [
-  AC_MSG_CHECKING([QtXml])
-  AC_REQUIRE([AX_HAVE_QT_CORE])
-  _AX_HAVE_QT_MODULE([QtXml], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
-
-AC_DEFUN([AX_HAVE_QT_OPENGL], [
-  AC_MSG_CHECKING([QtOpenGL])
-  AC_REQUIRE([AC_PATH_X])
-  AC_REQUIRE([AC_PATH_XTRA])
-  AC_REQUIRE([AX_HAVE_OPENGL])
-  AC_REQUIRE([AX_HAVE_QT_GUI])
-  _AX_HAVE_QT_MODULE([QtOpenGL], [
-    AC_MSG_RESULT([yes])
-  ], [
-    AC_MSG_ERROR([no])
-  ])
-])
 
 dnl Check for the specified Qt module.
 dnl
@@ -748,6 +604,80 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_MODULE], [
   fi;
 ])
 
+dnl Check if the specified directory is a traditional Qt directory, as provided
+dnl by Trolltech.
+dnl
+dnl The first argument must be the path of the canonical Qt installation.
+dnl
+dnl The second and third arguments optionally specify any shell script that will be
+dnl run on the success or failure, respectively, of this test.
+AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
+  ax_qt_dir_candidate=$1
+  if (test -x $ax_qt_dir_candidate/bin/moc) &&
+     ((ls $ax_qt_dir_candidate/lib/libqt* > /dev/null 2>/dev/null) ||
+      (ls $ax_qt_dir_candidate/lib64/libqt* > /dev/null 2>/dev/null) ||
+      (ls $ax_qt_dir_candidate/lib/libQt* > /dev/null 2>/dev/null) ||
+      (ls $ax_qt_dir_candidate/lib64/libQt* > /dev/null 2>/dev/null)); then
+    :
+    $2
+  else
+    :
+    $3
+  fi;
+])
+
+dnl Force Autoconf to use the specified directory as the canonical Qt installation.
+dnl Where applicable, these contents will be preferred over external ones.
+AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
+  ax_qt_dir="$1"
+  _AX_HAVE_QT_CHECK_FOR_QTDIR($ax_qt_dir,,[
+    AC_MSG_WARN([Specified Qt directory is not actually a Qt directory])
+  ])
+  have_qt=yes
+  ax_qt_include_dir="$ax_qt_dir/include"
+  ax_qt_bin_dir="$ax_qt_dir/bin"
+  ax_qt_lib_dir="$ax_qt_dir/lib"
+  if (test -d $ax_qt_dir/lib64); then
+    ax_qt_lib_dir="$ax_qt_dir/lib64"
+  else
+    ax_qt_lib_dir="$ax_qt_dir/lib"
+  fi
+  # Only search for the lib if the user did not define one already
+  if test x"$ax_qt_lib" = x; then
+    ax_qt_lib="`ls $ax_qt_lib_dir/libqt* | sed -n 1p |
+                 sed s@$ax_qt_lib_dir/lib@@ | [sed s@[.].*@@]`"
+  fi
+  QT_LIBS="-L$ax_qt_lib_dir -l$ax_qt_lib $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
+])
+
+dnl Find the legacy include directory for Qt. While this is still used for modern
+dnl versions of Qt, it is preferable to include the module header directories
+dnl themselves.
+dnl
+dnl This macro sets the following variables:
+dnl   ax_qt_include_dir - the path believed to contain Qt's header files
+dnl
+AC_DEFUN([_AX_HAVE_QT_FIND_INCLUDE], [
+  # The following header file is expected to define QT_VERSION.
+  qt_direct_test_header=qglobal.h
+  # Look for the header file in a standard set of common directories.
+  ax_prev_ver=0
+  _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root], [
+    for ax_dir in $ax_dir_root $ax_dir_root/include; do
+      if test -r "$ax_dir/$qt_direct_test_header"; then
+        # Check if this directory contains a newer library than our
+        # previous candidate.
+        ax_this_ver=`sed -nre 's/^[ ]*#define[ ]+QT_VERSION[ ]+//p' \
+          $ax_dir/$qt_direct_test_header`
+        if expr $ax_this_ver '>' $ax_prev_ver > /dev/null; then
+          ax_qt_include_dir=$ax_dir
+          ax_prev_ver=$ax_this_ver
+        fi
+      fi
+    done
+  ])
+])dnl _AX_HAVE_QT_FIND_INCLUDE
+
 AC_DEFUN([_AX_HAVE_QT_VERIFY_TOOLCHAIN], [
   AC_MSG_CHECKING(correct functioning of Qt installation)
   AC_CACHE_VAL(ax_cv_qt_test_result,
@@ -821,3 +751,73 @@ EOF
   rm -f ax_qt_test.h moc_ax_qt_test.$ac_ext moc_ax_qt_test.o \
           ax_qt_main.$ac_ext ax_qt_main.o ax_qt_main
 ])
+
+dnl Iterate over a set of common directories, executing specified shell script for each entry.
+dnl
+dnl The first argument specifies the variable name of a given directory. This name should be used
+dnl in the specified shell script.
+dnl
+dnl The second argument consists of shell script that will be executed for each entry. If the shell
+dnl script calls "break", then iteration will immediately stop.
+dnl
+dnl The third argument consists of any extra directories that will be iterated.
+AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
+  for ax_for_each_dir_root in $3 \
+    "${QTDIR}" \
+    /lib64 \
+    /lib \
+    /usr \
+    /usr/include \
+    /usr/lib64 \
+    /usr/lib \
+    /usr/local \
+    /opt \
+    /Developer;
+  do
+    for $1 in \
+      "$ax_for_each_dir_root" \
+      `ls -dr $ax_dir_root/qt* 2>/dev/null` \
+      `ls -dr $ax_dir_root/Qt* 2>/dev/null`;
+    do
+      ax_continue_flag=
+      $2
+      # Detect if we broke out of the for-loop using this flag
+      ax_continue_flag=yes
+    done
+    if test x"$ax_continue_flag" != xyes; then
+      break;
+    fi;
+  done
+])
+
+dnl Add a parameter to the specified variable.
+dnl
+dnl The first parameter is the name of the variable that will be modified.
+dnl The second parameter is the parameter that will be added. Multiple parameters
+dnl are allowed.
+dnl
+dnl The third parameter will, if "yes", force the variable to be added to the front, rather
+dnl than the back of the specified variable.
+AC_DEFUN([_AX_HAVE_QT_INSERT], [
+  ax_target_variable=$1
+  ax_insert_to_front=$3
+  ax_inserted_variable_list=
+  for ax_one_inserted_value in $2; do
+    ax_do_insertion=yes
+    for ax_this_value in $$1; do
+      if test x"$ax_this_value" = x"$ax_one_inserted_value"; then
+        # Value is already present, so no need to insert it again
+        ax_do_insertion=
+        break
+      fi
+    done
+    if test x"$ax_do_insertion" = xyes; then
+      ax_inserted_variable_list="$ax_inserted_variable_list $ax_one_inserted_value"
+    fi
+  done
+  if test x"$ax_insert_to_front" = xyes; then
+    eval "$ax_target_variable=\"$ax_inserted_variable_list "'$'"$ax_target_variable\""
+  else
+    eval "$ax_target_variable=\""'$'"$ax_target_variable $ax_inserted_variable_list\""
+  fi;
+])dnl _AX_HAVE_QT_INSERT
