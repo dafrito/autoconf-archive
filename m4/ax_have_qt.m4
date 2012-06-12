@@ -95,6 +95,7 @@
 #
 # LICENSE
 #
+#   Copyright (c) 2012 Aaron Faanes   <dafrito@gmail.com>
 #   Copyright (c) 2008 Bastiaan Veelo <Bastiaan@Veelo.net>
 #
 #   Copying and distribution of this file, with or without modification, are
