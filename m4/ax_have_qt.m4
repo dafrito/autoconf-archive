@@ -628,6 +628,9 @@ AC_DEFUN([_AX_HAVE_QT_COMPILE], [
     $6
   ])
 
+  AC_SUBST(QT_CXXFLAGS)
+  AC_SUBST(QT_LIBS)
+
   AC_LANG_POP([C++])
 ])
 
