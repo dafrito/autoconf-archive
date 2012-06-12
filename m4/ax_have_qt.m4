@@ -354,8 +354,13 @@ AC_DEFUN([AX_HAVE_QT_TEST], [
   AC_REQUIRE([AX_HAVE_QT_MOC])
   _AX_HAVE_QT_ADD_MODULE(
     [QtTest],
-    [QCoreApplication QTestEventList],
-    _AX_HAVE_QT_CORE_PROGRAM([QTestEventList]),
+    [QCoreApplication QTest],
+    [[
+      int    argc;
+      char **argv;
+      QCoreApplication app(argc, argv);
+      QTest::qSleep(10)
+    ]],
     , dnl CXXFLAGS
     , dnl LIBS
     [
