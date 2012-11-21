@@ -273,7 +273,7 @@ AC_DEFUN([AX_HAVE_QT_MOC], [
 
   QT_MOC=
   for ax_moc_candidate in \
-    "$QT_DIR/bin/moc" \
+    "$QT_DIR/bin/moc*" \
     `which moc` \
     `which moc-qt4`;
   do
@@ -472,7 +472,7 @@ dnl The second and third arguments optionally specify any shell script that will
 dnl run on the success or failure, respectively, of this test.
 AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
   ax_qt_dir_candidate=$1
-  if (test -x $ax_qt_dir_candidate/bin/moc) &&
+  if (test -x $ax_qt_dir_candidate/bin/moc*) &&
      ((ls $ax_qt_dir_candidate/lib/libqt* > /dev/null 2>/dev/null) ||
       (ls $ax_qt_dir_candidate/lib64/libqt* > /dev/null 2>/dev/null) ||
       (ls $ax_qt_dir_candidate/lib/libQt* > /dev/null 2>/dev/null) ||
@@ -557,6 +557,7 @@ AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
     /usr/lib \
     /usr/local \
     /opt \
+    /mingw \
     /Developer;
   do
     for $1 in \
