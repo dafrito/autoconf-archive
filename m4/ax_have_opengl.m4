@@ -100,14 +100,8 @@ if test x"$no_x" != xyes; then
 dnl Add everything we need to compile and link X programs to GL_X_CFLAGS
 dnl and GL_X_LIBS.
   GL_CFLAGS="$X_CFLAGS"
-  GL_X_LIBS="$X_PRE_LIBS $X_LIBS -lX11 -lXext -lXmu -lXt -lXi $X_EXTRA_LIBS"
+  GL_X_LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
 fi
-    GL_save_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$GL_CFLAGS"
-
-    GL_save_LIBS="$LIBS"
-    LIBS="$GL_X_LIBS"
-
 
     # Save the "AC_MSG_RESULT file descriptor" to FD 8.
     exec 8>&AC_FD_MSG
@@ -116,19 +110,59 @@ fi
     # messages.
     exec AC_FD_MSG>/dev/null
 
-    AC_SEARCH_LIBS(glAccum,          $GL_search_list, have_GL=yes,   have_GL=no)
-    AC_SEARCH_LIBS(gluBeginCurve,   $GLU_search_list, have_GLU=yes,  have_GLU=no)
-    AC_SEARCH_LIBS(glXChooseVisual, $GLX_search_list, have_GLX=yes,  have_GLX=no)
-    AC_SEARCH_LIBS(glutInit,        glut,             have_glut=yes, have_glut=no)
+    GL_save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$GL_CFLAGS"
+
+    GL_save_LIBS="$LIBS"
+    LIBS="$GL_X_LIBS"
+    GL_LIBS="$GL_X_LIBS"
+
+    AC_CHECK_HEADER([GL/gl.h], [
+      for lib_candidate in $GL_search_list; do
+        LIBS="$GL_LIBS -l$lib_candidate"
+        AC_LINK_IFELSE(
+          [AC_LANG_PROGRAM([#include <GL/gl.h>], [glEnd();])],
+          [have_GL=yes], [have_GL=no]
+        )
+        if test x"$have_GL" = xyes; then
+          GL_LIBS="$GL_LIBS -l$lib_candidate"
+          break;
+        fi;
+      done;
+    ])
+
+    AC_CHECK_HEADER([GL/glu.h], [
+      for lib_candidate in $GLU_search_list; do
+        LIBS="$GL_LIBS -l$lib_candidate"
+        AC_LINK_IFELSE(
+          [AC_LANG_PROGRAM([#include <GL/glu.h>], [gluNewTess();])],
+          [have_GLU=yes], [have_GLU=no]
+        )
+        if test x"$have_GLU" = xyes; then
+          GL_LIBS="$GL_LIBS -l$lib_candidate"
+          break;
+        fi;
+      done;
+    ])
+
+    LIBS="$GL_LIBS"
+
+    AC_CHECK_HEADER([GL/glx.h], [
+      AC_SEARCH_LIBS(glXChooseVisual, $GLX_search_list, have_GLX=yes,  have_GLX=no)
+    ])
+
+    AC_CHECK_HEADER([GL/glut.h], [
+      AC_SEARCH_LIBS(glutInit,        glut,             have_glut=yes, have_glut=no)
+    ])
 
     # Restore pretty messages.
     exec AC_FD_MSG>&8
 
-    if test -n "$LIBS"; then
+    if test x"$have_GL" = xyes; then
       ax_cv_have_OpenGL=yes
-      GL_LIBS="$LIBS"
     else
       ax_cv_have_OpenGL=no
+      GL_LIBS=
       GL_CFLAGS=
     fi
 
