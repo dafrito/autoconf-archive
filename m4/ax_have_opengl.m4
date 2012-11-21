@@ -121,8 +121,6 @@ fi
     AC_SEARCH_LIBS(glXChooseVisual, $GLX_search_list, have_GLX=yes,  have_GLX=no)
     AC_SEARCH_LIBS(glutInit,        glut,             have_glut=yes, have_glut=no)
 
-
-
     # Restore pretty messages.
     exec AC_FD_MSG>&8
 
