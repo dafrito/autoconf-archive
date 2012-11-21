@@ -42,24 +42,25 @@
 #   The following variables contain the compiler and linker flags necessary
 #   to use the requested Qt modules.
 #
-#     QT_CXXFLAGS
-#     QT_LIBS
+#     AC_SUBST(QT_CXXFLAGS)
+#     AC_SUBST(QT_LIBS)
 #
 #   The following variables contain an absolute path to the various Qt
 #   executables:
-#     QT_MOC
-#     QT_UIC
-#     QT_LRELEASE
-#     QT_LUPDATE
+#     AC_SUBST(QT_MOC)
+#     AC_SUBST(QT_UIC)
+#     AC_SUBST(QT_LRELEASE)
+#     AC_SUBST(QT_LUPDATE)
 #
 #  Additionally, the following variable will contain the path to a specified
 #  Qt SDK location, if one was given:
 #
-#     QT_DIR
+#     AC_SUBST(QT_DIR)
 #
 #   Example lines for Makefile.in:
 #
 #     CXXFLAGS = @QT_CXXFLAGS@
+#     LIBS     = @QT_LIBS@
 #     MOC      = @QT_MOC@
 #
 #   No common variables such as $LIBS or $CFLAGS are polluted.
@@ -67,7 +68,7 @@
 #   Options:
 #
 #   --with-Qt-dir=DIR: DIR is equal to $QTDIR if you have followed the
-#   installation instructions of Trolltech. Header files are in DIR/include,
+#   installation instructions from the SDK. Header files are in DIR/include,
 #   binary utilities are in DIR/bin and the library is in DIR/lib. If =no is
 #   given, then QT_DIR is not set.
 #
