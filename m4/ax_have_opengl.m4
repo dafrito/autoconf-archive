@@ -75,8 +75,8 @@ AC_DEFUN([AX_HAVE_OPENGL],
   AC_REQUIRE([AC_PATH_XTRA])
 
   AC_ARG_ENABLE([Mesa],
-    [AS_HELP_STRING([--enable-Mesa], [Prefer the Mesa library over a vendor's native OpenGL library [default=yes]])],
-    [use_Mesa=$enableval], [use_Mesa=yes]
+    [AS_HELP_STRING([--enable-Mesa], [Prefer the Mesa library over a vendor's native OpenGL library [default=no]])],
+    [use_Mesa=$enableval], [use_Mesa=no]
   )
 
   AC_CACHE_CHECK([for OpenGL], ax_cv_have_OpenGL,
