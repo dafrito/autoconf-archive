@@ -83,13 +83,13 @@ dnl Check for Mesa first, unless we were asked not to.
     AC_ARG_ENABLE(Mesa, $with_Mesa_help_string, use_Mesa=$enableval, use_Mesa=yes)
 
     if test x"$use_Mesa" = xyes; then
-       GL_search_list="MesaGL   GL"
-      GLU_search_list="MesaGLU GLU"
+       GL_search_list="MesaGL   GL opengl32"
+      GLU_search_list="MesaGLU GLU glu32"
       GLX_search_list="MesaGLX GLX"
     else
-       GL_search_list="GL  MesaGL"
-      GLU_search_list="GLU MesaGLU"
-      GLX_search_list="GLX MesaGLX"
+       GL_search_list="GL  opengl32 MesaGL"
+      GLU_search_list="GLU glu32    MesaGLU"
+      GLX_search_list="GLX          MesaGLX"
     fi
 
     AC_LANG_SAVE
