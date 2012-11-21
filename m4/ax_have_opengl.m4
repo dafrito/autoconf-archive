@@ -74,14 +74,14 @@ AC_DEFUN([AX_HAVE_OPENGL],
   AC_REQUIRE([AC_PATH_X])
   AC_REQUIRE([AC_PATH_XTRA])
 
+  AC_ARG_ENABLE([Mesa],
+    [AS_HELP_STRING([--enable-Mesa], [Prefer the Mesa library over a vendor's native OpenGL library [default=yes]])],
+    [use_Mesa=$enableval], [use_Mesa=yes]
+  )
+
   AC_CACHE_CHECK([for OpenGL], ax_cv_have_OpenGL,
   [
 dnl Check for Mesa first, unless we were asked not to.
-    AC_ARG_WITH([--with-Mesa],
-                   [Prefer the Mesa library over a vendors native OpenGL library (default=yes)],
-                   with_Mesa_help_string)
-    AC_ARG_ENABLE(Mesa, $with_Mesa_help_string, use_Mesa=$enableval, use_Mesa=yes)
-
     if test x"$use_Mesa" = xyes; then
        GL_search_list="MesaGL   GL opengl32"
       GLU_search_list="MesaGLU GLU glu32"
