@@ -14,9 +14,9 @@
 #   AX_HAVE_QT_SQL
 #   AX_HAVE_QT_TEST
 #   AX_HAVE_QT_XML
+#   AX_HAVE_QT_MOC
 #
 #   The following macros are not yet implemented:
-#   AX_HAVE_QT_MOC
 #   AX_HAVE_QT_UIC
 #   AX_HAVE_QT_LRELEASE
 #   AX_HAVE_QT_LUPDATE
