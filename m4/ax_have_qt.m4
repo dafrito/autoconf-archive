@@ -320,8 +320,10 @@ AC_DEFUN([AX_HAVE_QT_CORE], [
     [
       AC_MSG_RESULT([yes])
       AC_DEFINE([HAVE_QT_CORE],,[define if the QtCore module is available])
+      have_qt_core=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_core=no
   ])
 ])
 
@@ -343,8 +345,10 @@ AC_DEFUN([AX_HAVE_QT_GUI], [
     [
       AC_MSG_RESULT([yes])
       AC_DEFINE([HAVE_QT_GUI],,[define if the QtGui module is available])
+      have_qt_gui=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_gui=no
   ])
 ])
 
@@ -366,8 +370,10 @@ AC_DEFUN([AX_HAVE_QT_TEST], [
     [
       AC_MSG_RESULT([yes])
       AC_DEFINE([HAVE_QT_TEST],,[define if the QtTest module is available])
+      have_qt_test=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_test=no
   ])
 ])
 
@@ -383,8 +389,10 @@ AC_DEFUN([AX_HAVE_QT_SQL], [
     [
       AC_MSG_RESULT([yes])
       AC_DEFINE([HAVE_QT_SQL],,[define if the QtSql module is available])
+      have_qt_sql=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_sql=no
   ])
 ])
 
@@ -400,8 +408,10 @@ AC_DEFUN([AX_HAVE_QT_NETWORK], [
     [
       AC_MSG_RESULT([yes])
       AC_DEFINE([HAVE_QT_NETWORK],,[define if the QtNetwork module is available])
+      have_qt_network=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_network=no
   ])
 ])
 
@@ -417,8 +427,10 @@ AC_DEFUN([AX_HAVE_QT_XML], [
     [
       AC_MSG_RESULT([yes])
       AC_DEFINE([HAVE_QT_XML],,[define if the QtXml module is available])
+      have_qt_xml=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+      have_qt_xml=no
   ])
 ])
 
@@ -437,8 +449,10 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
     [
       AC_DEFINE([HAVE_QT_OPENGL],,[define if the QtOpenGL module is available])
       AC_MSG_RESULT([yes])
+      have_qt_opengl=yes
     ], [
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_opengl=no
   ])
 ])
 
@@ -456,12 +470,14 @@ AC_DEFUN([AX_HAVE_QT_MOC], [
       _AX_HAVE_QT_CHECK_MOC(["$ax_moc_candidate"], [
         QT_MOC=$ax_moc_candidate
         AC_MSG_RESULT([yes])
+        have_qt_moc=yes
         break
       ])
     fi
   done;
   if test x"$QT_MOC" = x; then
-    AC_MSG_ERROR([no])
+    AC_MSG_RESULT([no])
+    have_qt_moc=no
   fi
   AC_SUBST(QT_MOC)
 ])
