@@ -14,6 +14,8 @@
 #   AX_HAVE_QT_TEST
 #   AX_HAVE_QT_XML
 #   AX_HAVE_QT_MOC
+#   AX_HAVE_QT_WEBKIT
+#   AX_HAVE_QT_DBUS
 #
 #   The following macros are not yet implemented:
 #   AX_HAVE_QT_UIC
@@ -33,6 +35,8 @@
 #   have_qt_sql
 #   have_qt_test
 #   have_qt_xml
+#   have_qt_webkit
+#   have_qt_dbus
 #
 #   have_qt_moc
 #   have_qt_uic
@@ -67,7 +71,7 @@
 #
 #   Options:
 #
-#   --with-Qt-dir=DIR: DIR is equal to $QTDIR if you have followed the
+#   --with-Qt-dir=DIR: DIR is equal to $QT_DIR if you have followed the
 #   installation instructions from the SDK. Header files are in DIR/include,
 #   binary utilities are in DIR/bin and the library is in DIR/lib. If =no is
 #   given, then QT_DIR is not set.
@@ -90,7 +94,7 @@ AC_DEFUN([_AX_QT_BASE],
 
   AC_ARG_WITH([Qt-dir],
               AS_HELP_STRING([--with-Qt-dir=DIR],
-                             [DIR is equal to $QTDIR if you have followed the
+                             [DIR is equal to $QT_DIR if you have followed the
                               installation instructions of Trolltech. Header
                               files are in DIR/include, binary utilities are
                               in DIR/bin. The library is in DIR/lib, unless
@@ -107,7 +111,7 @@ AC_DEFUN([_AX_QT_BASE],
   fi;
 
   if test -d "$with_Qt_dir"; then
-    _AX_HAVE_QT_CHECK_FOR_QTDIR([$with_Qt_dir], [QT_DIR="$with_Qt_dir"], [QT_DIR=])
+    _AX_HAVE_QT_CHECK_FOR_QT_DIR([$with_Qt_dir], [QT_DIR="$with_Qt_dir"], [QT_DIR=])
   fi;
 
   AC_SUBST(QT_DIR)
@@ -119,7 +123,7 @@ AC_DEFUN([AX_HAVE_QT_CORE], [
   AC_REQUIRE([_AX_QT_BASE])
   AC_MSG_CHECKING([QtCore])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtCore],
+    [Core],
     [QCoreApplication],
     [[
       int    argc;
@@ -144,12 +148,12 @@ AC_DEFUN([AX_HAVE_QT_GUI], [
   AC_REQUIRE([AC_PATH_XTRA])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtGui],
-    [QApplication],
+    [Gui],
+    [QBrush],
     [[
       int    argc;
       char **argv;
-      QApplication app(argc, argv);
+      QBrush brush;
     ]],
     [$X_CFLAGS],
     [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS],
@@ -163,12 +167,38 @@ AC_DEFUN([AX_HAVE_QT_GUI], [
   ])
 ])
 
+AC_DEFUN([AX_HAVE_QT_WIDGETS], [
+  AC_MSG_CHECKING([QtWidgets])
+  AC_REQUIRE([AC_PATH_X])
+  AC_REQUIRE([AC_PATH_XTRA])
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  AC_REQUIRE([AX_HAVE_QT_GUI])
+  _AX_HAVE_QT_ADD_MODULE(
+    [Widgets],
+    [QApplication],
+    [[
+      int    argc;
+      char **argv;
+      QApplication app(argc, argv);
+    ]],
+    [$X_CFLAGS],
+    [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS],
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_WIDGETS],,[define if the QtWidgets module is available])
+      have_qt_widgets=yes
+    ], [
+    AC_MSG_RESULT([no])
+    have_qt_widgets=no
+  ])
+])
+
 AC_DEFUN([AX_HAVE_QT_TEST], [
   AC_MSG_CHECKING([QtTest])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   AC_REQUIRE([AX_HAVE_QT_MOC])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtTest],
+    [Test],
     [QCoreApplication QTest],
     [[
       int    argc;
@@ -192,7 +222,7 @@ AC_DEFUN([AX_HAVE_QT_SQL], [
   AC_MSG_CHECKING([QtSql])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtSql],
+    [Sql],
     [QCoreApplication QSqlDatabase],
     _AX_HAVE_QT_CORE_PROGRAM([QSqlDatabase]),
     , dnl CXXFLAGS
@@ -211,7 +241,7 @@ AC_DEFUN([AX_HAVE_QT_NETWORK], [
   AC_MSG_CHECKING([QtNetwork])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtNetwork],
+    [Network],
     [QCoreApplication QLocalSocket],
     _AX_HAVE_QT_CORE_PROGRAM([QLocalSocket]),
     , dnl CXXFLAGS
@@ -230,7 +260,7 @@ AC_DEFUN([AX_HAVE_QT_XML], [
   AC_MSG_CHECKING([QtXml])
   AC_REQUIRE([AX_HAVE_QT_CORE])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtXml],
+    [Xml],
     [QCoreApplication QXmlSimpleReader],
     _AX_HAVE_QT_CORE_PROGRAM([QXmlSimpleReader]),
     , dnl CXXFLAGS
@@ -251,8 +281,9 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
   AC_REQUIRE([AC_PATH_XTRA])
   AC_REQUIRE([AX_HAVE_OPENGL])
   AC_REQUIRE([AX_HAVE_QT_GUI])
+  AC_REQUIRE([AX_HAVE_QT_WIDGETS])
   _AX_HAVE_QT_ADD_MODULE(
-    [QtOpenGL],
+    [OpenGL],
     [QApplication QGLWidget],
     _AX_HAVE_QT_GUI_PROGRAM([QGLWidget]),
     [$X_CFLAGS $GL_CFLAGS],
@@ -267,30 +298,52 @@ AC_DEFUN([AX_HAVE_QT_OPENGL], [
   ])
 ])
 
-AC_DEFUN([AX_HAVE_QT_MOC], [
-  AC_MSG_CHECKING([Qt moc])
-  AC_REQUIRE([AX_HAVE_QT_CORE])
-
-  QT_MOC=
-  for ax_moc_candidate in \
-    "$QT_DIR/bin/moc*" \
-    `which moc` \
-    `which moc-qt4`;
-  do
-    if test -x "$ax_moc_candidate"; then
-      _AX_HAVE_QT_CHECK_MOC(["$ax_moc_candidate"], [
-        QT_MOC=$ax_moc_candidate
-        AC_MSG_RESULT([yes])
-        have_qt_moc=yes
-        break
-      ])
-    fi
-  done;
-  if test x"$QT_MOC" = x; then
+AC_DEFUN([AX_HAVE_QT_WEBKIT], [
+  AC_MSG_CHECKING([QtWebKit])
+  AC_REQUIRE([AC_PATH_X])
+  AC_REQUIRE([AC_PATH_XTRA])
+  AC_REQUIRE([AX_HAVE_OPENGL])
+  AC_REQUIRE([AX_HAVE_QT_GUI])
+  AC_REQUIRE([AX_HAVE_QT_WIDGETS])
+  AC_REQUIRE([AX_HAVE_QT_NETWORK])
+  _AX_HAVE_QT_ADD_MODULE(
+    [WebKit],
+    [QApplication QWebView],
+    _AX_HAVE_QT_GUI_PROGRAM([QWebView]),
+    [$X_CFLAGS $GL_CFLAGS],
+    [$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS],
+    [
+      AC_DEFINE([HAVE_QT_WEBKIT],,[define if the QtWebKit module is available])
+      AC_MSG_RESULT([yes])
+      have_qt_webkit=yes
+    ], [
     AC_MSG_RESULT([no])
-    have_qt_moc=no
-  fi
-  AC_SUBST(QT_MOC)
+    have_qt_webkit=no
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_DBUS], [
+  AC_MSG_CHECKING([QtDBus])
+  _AX_HAVE_QT_ADD_MODULE(
+    [DBus],
+    [QCoreApplication QDBusArgument],
+    _AX_HAVE_QT_CORE_PROGRAM([QDBusArgument]),
+    , dnl CXXFLAGS
+    , dnl LIBS
+    [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_QT_DBUS],,[define if the QtDBus module is available])
+      have_qt_dbus=yes
+    ], [
+    AC_MSG_RESULT([no])
+    have_qt_dbus=no
+  ])
+])
+
+AC_DEFUN([AX_HAVE_QT_MOC], [
+  AC_REQUIRE([AX_HAVE_QT_CORE])
+  QT_MOC=
+  AC_PATH_PROGS([QT_MOC], [moc moc-qt4], [], [$QT_DIR/bin:$PATH])
 ])
 
 AC_DEFUN([_AX_HAVE_QT_CHECK_MOC], [
@@ -343,8 +396,8 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
            ax_qt_module=$1
    ax_qt_module_headers="$2"
   # Program body         3
-  ax_qt_module_CXXFLAGS=$4
-      ax_qt_module_LIBS=$5
+  ax_qt_module_CXXFLAGS="$4"
+      ax_qt_module_LIBS="$5"
   # Action if successful 6
   # Action if failed     7
 
@@ -356,15 +409,17 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
         if test -r "$ax_dir/$ax_qt_header_name"; then
           ax_qt_module_include_dir="$ax_dir"
           break;
+        elif test -r "$ax_dir/Qt$ax_qt_module/$ax_qt_header_name"; then
+          _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_dir"])
+          ax_qt_module_include_dir="$ax_dir/Qt$ax_qt_module"
+          break;
         fi;
       done;
       if test x"$ax_qt_module_include_dir" != x; then
+        _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_module_include_dir"])
         break;
       fi
     ])
-    if test x"$ax_qt_module_include_dir" != x; then
-      _AX_HAVE_QT_INSERT([ax_qt_module_CXXFLAGS], [-I"$ax_qt_module_include_dir"])
-    fi
   done;
 
   # Construct a prologue from the specified headers
@@ -390,24 +445,33 @@ AC_DEFUN([_AX_HAVE_QT_ADD_MODULE], [
     [$ax_qt_module_prologue],
     [$3],
     [$ax_qt_module_CXXFLAGS],
-    ["$ax_qt_module_LIBS -l$ax_qt_module"], [
+    ["$ax_qt_module_LIBS -lQt$ax_qt_module"], [
       $6
       :
   ],[
     # (3/3) Try building using an explicit library path (-Lpath -lmodule)
     ax_found_a_good_dir=no
-    _AX_HAVE_QT_FOR_EACH_DIR([ax_dir],[
-      if ls $ax_dir/lib$ax_qt_module* >/dev/null 2>/dev/null; then
-        _AX_HAVE_QT_COMPILE(
-          [$ax_qt_module_prologue],
-          [$3],
-          [$ax_qt_module_CXXFLAGS],
-          ["$ax_qt_module_LIBS -L$ax_dir -l$ax_qt_module"], [
-            ax_found_a_good_dir=yes
-            $6
-            break;
-          ]
-        )
+    _AX_HAVE_QT_FOR_EACH_DIR([ax_dir_root],[
+      for ax_dir in $ax_dir_root $ax_dir_root/lib $ax_dir_root/lib64; do
+        for lib_candidate in `ls $ax_dir/libQt*$ax_qt_module* 2>/dev/null`; do
+          lib_candidate=`echo $lib_candidate | sed -re "s|^.*/lib(Qt.*$ax_qt_module.*)\\..*|\\1|"`
+          _AX_HAVE_QT_COMPILE(
+            [$ax_qt_module_prologue],
+            [$3],
+            [$ax_qt_module_CXXFLAGS],
+            ["$ax_qt_module_LIBS -L$ax_dir -l$lib_candidate"], [
+              ax_found_a_good_dir=yes
+              $6
+              break;
+            ]
+          )
+        done;
+        if test x"$ax_found_a_good_dir" = xyes; then
+          break;
+        fi
+      done;
+      if test x"$ax_found_a_good_dir" = xyes; then
+        break;
       fi
     ])
     if test x"$ax_found_a_good_dir" != xyes; then
@@ -470,7 +534,7 @@ dnl The first argument must be the path of the canonical Qt installation.
 dnl
 dnl The second and third arguments optionally specify any shell script that will be
 dnl run on the success or failure, respectively, of this test.
-AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
+AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QT_DIR], [
   ax_qt_dir_candidate=$1
   if (test -x $ax_qt_dir_candidate/bin/moc*) &&
      ((ls $ax_qt_dir_candidate/lib/libqt* > /dev/null 2>/dev/null) ||
@@ -487,9 +551,9 @@ AC_DEFUN([_AX_HAVE_QT_CHECK_FOR_QTDIR], [
 
 dnl Force Autoconf to use the specified directory as the canonical Qt installation.
 dnl Where applicable, these contents will be preferred over external ones.
-AC_DEFUN([_AX_HAVE_QT_USE_QTDIR], [
+AC_DEFUN([_AX_HAVE_QT_USE_QT_DIR], [
   ax_qt_dir="$1"
-  _AX_HAVE_QT_CHECK_FOR_QTDIR($ax_qt_dir,,[
+  _AX_HAVE_QT_CHECK_FOR_QT_DIR($ax_qt_dir,,[
     AC_MSG_WARN([Specified Qt directory is not actually a Qt directory])
   ])
   have_qt=yes
@@ -548,7 +612,7 @@ dnl
 dnl The third argument consists of any extra directories that will be iterated.
 AC_DEFUN([_AX_HAVE_QT_FOR_EACH_DIR],[
   for ax_for_each_dir_root in $3 \
-    "${QTDIR}" \
+    "${QT_DIR}" \
     /lib64 \
     /lib \
     /usr \
