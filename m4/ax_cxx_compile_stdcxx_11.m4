@@ -4,12 +4,13 @@
 #
 # SYNOPSIS
 #
-#   AX_CXX_COMPILE_STDCXX_11([ext|noext],[mandatory|optional])
+#   AX_CXX_COMPILE_STDCXX_11([ext|noext],[mandatory|optional], [shellvar])
 #
 # DESCRIPTION
 #
 #   Check for baseline language coverage in the compiler for the C++11
-#   standard; if necessary, add switches to CXXFLAGS to enable support.
+#   standard; if necessary, add switches to shellvar (defaults to CXXFLAGS)
+#   to enable support.
 #
 #   The first argument, if specified, indicates whether you insist on an
 #   extended mode (e.g. -std=gnu++11) or a strict conformance mode (e.g.
@@ -22,11 +23,18 @@
 #   'optional', then configuration proceeds regardless, after defining
 #   HAVE_CXX11 if and only if a supporting mode is found.
 #
+#   shellvar, if specified, will be used as the target variable instead of
+#   CXXFLAGS when adding compile switches. This is useful for projects that
+#   use Automake, as that build system provides a maintainer-specific
+#   AM_CXXFLAGS; while using Automake, CXXFLAGS should not be modified by
+#   the maintainer.
+#
 # LICENSE
 #
 #   Copyright (c) 2008 Benjamin Kosnik <bkoz@redhat.com>
 #   Copyright (c) 2012 Zack Weinberg <zackw@panix.com>
 #   Copyright (c) 2013 Roy Stogner <roystgnr@ices.utexas.edu>
+#   Copyright (c) 2013 Aaron Faanes <dafrito@gmail.com>
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
@@ -74,6 +82,11 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
     ac_success=yes
   fi
 
+  shellvar=$2
+  if test x$shellvar = x; then
+    shellvar=CXXFLAGS
+  fi
+
   m4_if([$1], [noext], [], [dnl
   if test x$ac_success = xno; then
     for switch in -std=gnu++11 -std=gnu++0x; do
@@ -87,7 +100,7 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
           [eval $cachevar=no])
          CXXFLAGS="$ac_save_CXXFLAGS"])
       if eval test x\$$cachevar = xyes; then
-        CXXFLAGS="$CXXFLAGS $switch"
+        eval "$shellvar=\"\$$shellvar $switch\""
         ac_success=yes
         break
       fi
@@ -107,7 +120,7 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
           [eval $cachevar=no])
          CXXFLAGS="$ac_save_CXXFLAGS"])
       if eval test x\$$cachevar = xyes; then
-        CXXFLAGS="$CXXFLAGS $switch"
+        eval "$shellvar=\"\$$shellvar $switch\""
         ac_success=yes
         break
       fi
